@@ -41,6 +41,8 @@ export async function proxy(request: NextRequest) {
   const isMFASetup = pathname.startsWith('/mfa/setup')
   const isMFAVerify = pathname.startsWith('/mfa/verify')
 
+const isSetPassword = pathname.startsWith('/auth/set-password')
+
   if (!user) {
     if (!isLogin) {
       const url = request.nextUrl.clone()
@@ -59,7 +61,7 @@ export async function proxy(request: NextRequest) {
 
   // No MFA enrolled yet
   if (currentLevel === 'aal1' && nextLevel === 'aal1') {
-    if (!isMFASetup) {
+	  if (!isMFASetup && !isSetPassword) {
       const url = request.nextUrl.clone()
       url.pathname = '/mfa/setup'
       return NextResponse.redirect(url)
