@@ -42,9 +42,10 @@ export async function proxy(request: NextRequest) {
   const isMFAVerify = pathname.startsWith('/mfa/verify')
 
 const isSetPassword = pathname.startsWith('/auth/set-password')
+const isAuthCallback = pathname.startsWith('/auth/callback')
 
   if (!user) {
-    if (!isLogin) {
+  if (!isLogin && !isAuthCallback) {
       const url = request.nextUrl.clone()
       url.pathname = '/login'
       return NextResponse.redirect(url)
