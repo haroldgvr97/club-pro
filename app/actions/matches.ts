@@ -49,10 +49,17 @@ export async function createMatch(formData: FormData) {
   const cleanNotes =
     typeof notes === 'string' && notes.trim() ? notes.trim() : null
 
-  const cleanPlayedAt =
-    typeof playedAt === 'string' && playedAt
-      ? new Date(playedAt).toISOString()
-      : new Date().toISOString()
+let cleanPlayedAt = new Date().toISOString()
+
+if (typeof playedAt === 'string' && playedAt) {
+  const parsedPlayedAt = new Date(playedAt)
+
+  if (Number.isNaN(parsedPlayedAt.getTime())) {
+    return { error: 'Fecha del partido inválida.' }
+  }
+
+  cleanPlayedAt = parsedPlayedAt.toISOString()
+}
 
   try {
     const { supabase } = await requireAdmin()

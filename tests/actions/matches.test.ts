@@ -99,3 +99,19 @@ describe('createMatch validation', () => {
     })
   })
 })
+it('rejects invalid played_at', async () => {
+  const formData = new FormData()
+
+  formData.set('season_id', '1')
+  formData.set('manager_id', '1')
+  formData.set('opponent_id', '1')
+  formData.set('our_goals', '1')
+  formData.set('opponent_goals', '0')
+  formData.set('played_at', 'not-a-date')
+
+  const result = await createMatch(formData)
+
+  expect(result).toEqual({
+    error: 'Fecha del partido inválida.',
+  })
+})
