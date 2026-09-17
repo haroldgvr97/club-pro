@@ -192,6 +192,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activate_season: { Args: { p_season_id: number }; Returns: undefined }
       is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
