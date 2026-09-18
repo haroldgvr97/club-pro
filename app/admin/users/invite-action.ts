@@ -26,9 +26,10 @@ export async function inviteUserV2(formData: FormData) {
       return { error: `Error al invitar: ${inviteError?.message ?? 'Usuario inválido.'}` }
     }
 
-    const { error: memberError } = await supabase
-      .from('team_members')
-      .insert({ team_id: teamId, profile_id: inviteData.user.id })
+    const { error: memberError } = await supabase.rpc('assign_invited_user_to_team', {
+      p_team_id: teamId,
+      p_user_id: inviteData.user.id,
+    })
     if (memberError) return { error: 'La invitación se creó, pero no se pudo asociar al equipo.' }
   } catch {
     return { error: 'No autorizado para enviar invitaciones.' }
