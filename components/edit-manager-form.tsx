@@ -43,7 +43,7 @@ export function EditManagerForm({
       <input type="hidden" name="name" value={currentName} />
 
       <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="font-medium">Estadísticas como jugador</h2>
+        <h2 className="font-medium">Estadísticas como Jugador</h2>
         <p className="text-xs text-zinc-500">Edita goles y asistencias directamente aquí.</p>
       </div>
 
@@ -75,7 +75,6 @@ export function EditManagerForm({
         </label>
         <Stat label="Goles por partido" value={stats.goalsPerGame} />
         <Stat label="Participaciones de gol" value={stats.goalContributions} />
-        <Stat label="Participaciones por partido" value={stats.contributionsPerGame} />
       </div>
 
       <div className="mt-4 flex justify-end">

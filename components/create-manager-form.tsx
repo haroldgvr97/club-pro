@@ -24,7 +24,7 @@ export function CreateManagerForm() {
       <input
         name="name"
         type="text"
-        placeholder="Nombre del manager"
+        placeholder="Nombre del Manager/Jugador"
         required
         className="flex-1 rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2"
       />
@@ -34,7 +34,7 @@ export function CreateManagerForm() {
         disabled={pending}
         className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-black disabled:opacity-50"
       >
-        {pending ? 'Guardando...' : 'Agregar manager'}
+        {pending ? 'Guardando...' : 'Agregar Manager/Jugador'}
       </button>
 
       {state?.error ? (
@@ -42,7 +42,7 @@ export function CreateManagerForm() {
       ) : null}
 
       {state?.success ? (
-        <p className="text-sm text-green-400">Manager creado.</p>
+        <p className="text-sm text-green-400">Manager/Jugador creado.</p>
       ) : null}
     </form>
   )

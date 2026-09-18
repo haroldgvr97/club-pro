@@ -3,7 +3,7 @@ import Link from 'next/link'
 const links = [
   { href: '/', label: 'Dashboard' },
   { href: '/matches', label: 'Partidos' },
-  { href: '/managers', label: 'Managers' },
+  { href: '/managers', label: 'Estadísticas' },
   { href: '/opponents', label: 'Rivales' },
   { href: '/seasons', label: 'Temporadas' },
   { href: '/admin/users', label: 'Usuarios' },
