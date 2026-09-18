@@ -79,7 +79,7 @@ export type Database = {
           created_at: string
           id: number
           location: string | null
-          manager_id: number
+          manager_id: number | null
           notes: string | null
           opponent_goals: number
           opponent_id: number
@@ -96,7 +96,7 @@ export type Database = {
           created_at?: string
           id?: number
           location?: string | null
-          manager_id: number
+          manager_id?: number | null
           notes?: string | null
           opponent_goals: number
           opponent_id: number
@@ -113,7 +113,7 @@ export type Database = {
           created_at?: string
           id?: number
           location?: string | null
-          manager_id?: number
+          manager_id?: number | null
           notes?: string | null
           opponent_goals?: number
           opponent_id?: number

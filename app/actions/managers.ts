@@ -116,6 +116,20 @@ export async function setManagerActive(formData: FormData) {
   try {
     const { supabase } = await requireAdmin()
 
+    const { data: manager } = await supabase
+      .from('managers')
+      .select('profile_id')
+      .eq('id', managerId)
+      .maybeSingle()
+
+    if (!manager) {
+      return { error: 'El Manager no existe.' }
+    }
+
+    if (manager.profile_id) {
+      return { error: 'Primero elimina la cuenta de usuario asociada.' }
+    }
+
     const { data, error } = await supabase
       .from('managers')
       .update({
@@ -158,13 +172,6 @@ export async function deleteManager(formData: FormData) {
       .maybeSingle()
 
     if (error) {
-      if (error.code === '23503') {
-        return {
-          error:
-            'No se puede eliminar este manager porque tiene partidos asociados.',
-        }
-      }
-
       return { error: 'No se pudo eliminar el manager.' }
     }
 
@@ -173,6 +180,7 @@ export async function deleteManager(formData: FormData) {
     }
 
     revalidatePath('/')
+    revalidatePath('/managers')
 
     return { success: true }
   } catch {

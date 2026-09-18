@@ -1,7 +1,7 @@
 import { getMatchResult } from '@/lib/matches/result'
 
 type ManagerMatch = {
-  manager_id: number
+  manager_id: number | null
   our_goals: number
   opponent_goals: number
 }
@@ -24,6 +24,7 @@ export function getManagerStats(
   const stats = new Map<number, ManagerStats>()
 
   for (const match of matches) {
+    if (match.manager_id === null) continue
     const current =
       stats.get(match.manager_id) ??
       {

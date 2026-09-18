@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { EditManagerForm } from '@/components/edit-manager-form'
+import { DeleteManagerButton } from '@/components/delete-manager-button'
 import { getManagerPlayerStats } from '@/lib/stats/manager-player'
 import { getMatchResult } from '@/lib/matches/result'
 
@@ -16,7 +17,7 @@ type Manager = {
 
 type Match = {
   id: number
-  manager_id: number
+  manager_id: number | null
   our_goals: number
   opponent_goals: number
   played_at: string
@@ -29,9 +30,10 @@ type Props = {
   viewerProfileId: string
   canViewOtherManagers: boolean
   canEditOtherPlayers: boolean
+  isAdmin: boolean
 }
 
-export function StatisticsDashboard({ managers, matches, viewerProfileId, canViewOtherManagers, canEditOtherPlayers }: Props) {
+export function StatisticsDashboard({ managers, matches, viewerProfileId, canViewOtherManagers, canEditOtherPlayers, isAdmin }: Props) {
   const [section, setSection] = useState<'managers' | 'players'>('managers')
   const [selectedManagerId, setSelectedManagerId] = useState<number | null>(null)
 
@@ -86,7 +88,8 @@ export function StatisticsDashboard({ managers, matches, viewerProfileId, canVie
       ) : (
         selectedManager ? (
           <PlayerDetails manager={selectedManager} matches={matches} onBack={() => setSelectedManagerId(null)}
-            canEdit={selectedManager.profile_id === viewerProfileId || canEditOtherPlayers} />
+            canEdit={selectedManager.profile_id === viewerProfileId || canEditOtherPlayers}
+            canDelete={isAdmin && selectedManager.profile_id === null} />
         ) : (
           <PlayerPicker managers={visibleManagers} onSelect={setSelectedManagerId} />
         )
@@ -199,7 +202,7 @@ function PlayerPicker({ managers, onSelect }: { managers: Manager[]; onSelect: (
   )
 }
 
-function PlayerDetails({ manager, matches, onBack, canEdit }: { manager: Manager; matches: Match[]; onBack: () => void; canEdit: boolean }) {
+function PlayerDetails({ manager, matches, onBack, canEdit, canDelete }: { manager: Manager; matches: Match[]; onBack: () => void; canEdit: boolean; canDelete: boolean }) {
   const stats = getManagerPlayerStats(matches, manager.id, manager.goals, manager.assists)
 
   return (
@@ -212,6 +215,7 @@ function PlayerDetails({ manager, matches, onBack, canEdit }: { manager: Manager
           <h2 className="text-2xl font-bold">{manager.name}</h2>
           <p className="text-sm text-zinc-500">{manager.is_active ? 'Activo' : 'Inactivo'}</p>
         </div>
+        {canDelete ? <DeleteManagerButton managerId={manager.id} label="Eliminar Manager/Jugador" /> : null}
       </div>
       <EditManagerForm managerId={manager.id} goals={manager.goals} assists={manager.assists} stats={stats} canEdit={canEdit} />
     </div>

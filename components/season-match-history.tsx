@@ -6,7 +6,7 @@ import { getMatchResult } from '@/lib/matches/result'
 type Manager = { id: number; name: string }
 type Match = {
   id: number
-  manager_id: number
+  manager_id: number | null
   our_goals: number
   opponent_goals: number
   played_at: string

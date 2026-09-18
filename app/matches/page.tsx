@@ -125,7 +125,7 @@ export default async function MatchesPage() {
                       <details className="rounded-lg border border-zinc-800 p-3">
                         <summary className="cursor-pointer text-sm text-zinc-400">Editar o eliminar partido</summary>
                         <div className="mt-4 space-y-3">
-                      <EditMatchForm
+                      {match.manager_id !== null ? <EditMatchForm
                         matchId={match.id}
                         seasonId={match.season_id}
                         managerId={match.manager_id}
@@ -137,7 +137,7 @@ export default async function MatchesPage() {
                         seasons={seasonOptions}
                         managers={managerOptions}
                         opponents={opponentOptions}
-                      />
+                      /> : <p className="text-sm text-zinc-400">Este partido no tiene Manager asignado.</p>}
                           <DeleteMatchButton matchId={match.id} />
                         </div>
                       </details>

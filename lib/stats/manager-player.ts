@@ -1,5 +1,5 @@
 export type ManagerPlayerMatch = {
-  manager_id: number
+  manager_id: number | null
 }
 
 export type ManagerPlayerStats = {
