@@ -148,18 +148,21 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          display_name: string | null
           email: string
           id: string
           role: string
         }
         Insert: {
           created_at?: string
+          display_name?: string | null
           email: string
           id: string
           role?: string
         }
         Update: {
           created_at?: string
+          display_name?: string | null
           email?: string
           id?: string
           role?: string
@@ -200,6 +203,10 @@ export type Database = {
     Functions: {
       activate_season: { Args: { p_season_id: number }; Returns: undefined }
       is_admin: { Args: never; Returns: boolean }
+      set_profile_display_name: {
+        Args: { p_display_name: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

@@ -1,14 +1,28 @@
 import { logout } from './logout-action'
 
 import { AppSidebar } from '@/components/app-sidebar'
+import { DashboardGreeting } from '@/components/dashboard-greeting'
 import { getDashboardData } from '@/lib/data/get-dashboard-data'
 import { getDashboardStats } from '@/lib/stats/get-dashboard-stats'
+import { createClient } from '@/utils/supabase/server'
 
 export default async function Home() {
-  const [data, stats] = await Promise.all([
+  const supabase = await createClient()
+  const [{ data: authData }, data, stats] = await Promise.all([
+    supabase.auth.getUser(),
     getDashboardData(),
     getDashboardStats(),
   ])
+
+  const user = authData.user
+  const { data: profile } = user
+    ? await supabase
+        .from('profiles')
+        .select('display_name')
+        .eq('id', user.id)
+        .maybeSingle()
+    : { data: null }
+  const displayName = profile?.display_name ?? user?.email?.split('@')[0] ?? 'jugador'
 
   const recentMatches = data.matches.slice(0, 5)
 
@@ -35,7 +49,7 @@ export default async function Home() {
         <div className="mx-auto max-w-7xl px-6 py-8">
           <div className="mb-8 flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold">Dashboard</h1>
+              <DashboardGreeting name={displayName} />
               <p className="mt-1 text-sm text-zinc-400">
                 Resumen general del club
               </p>
