@@ -92,7 +92,7 @@ export async function createMatch(formData: FormData) {
         if (opponentError?.code === '23505') {
           // Another request may have just created this team.
           const { data: concurrent, error: concurrentError } = await supabase
-            .from('opponents').select('id').eq('name', opponentName).single()
+            .from('opponents').select('id').eq('team_id', teamId).eq('name', opponentName).single()
           if (concurrentError || !concurrent) return { error: 'No se pudo registrar el equipo rival.' }
           opponentId = concurrent.id
         } else if (opponentError || !created) {
@@ -130,6 +130,8 @@ export async function createMatch(formData: FormData) {
 
     revalidatePath('/')
     revalidatePath('/matches')
+    revalidatePath('/seasons')
+    revalidatePath('/managers')
     revalidatePath('/opponents')
 
     return { success: true }
