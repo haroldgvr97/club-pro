@@ -3,6 +3,7 @@
 import { useActionState, useId, useState } from 'react'
 import { createMatch } from '@/app/actions/matches'
 import { getOpponentHistory, normalizeOpponentName, type OpponentMatch } from '@/lib/matches/opponents'
+import { getMatchResult } from '@/lib/matches/result'
 
 type Option = { id: number; name: string }
 type Props = {
@@ -72,16 +73,23 @@ export function CreateMatchForm({ seasons, managers, opponents, matches }: Props
                 <table className="w-full text-left text-sm">
                   <thead className="text-zinc-400"><tr>
                     <th className="p-2">Equipo</th><th className="p-2">Manager</th>
-                    <th className="p-2">Resultado (nosotros – rival)</th><th className="p-2">Fecha</th>
+                    <th className="p-2">Resultado (nosotros – rival)</th><th className="p-2">Estado</th><th className="p-2">Fecha</th>
                   </tr></thead>
-                  <tbody>{history.map((match) => (
-                    <tr key={match.id} className="border-t border-zinc-800">
-                      <td className="p-2">{match.opponents?.name}</td>
-                      <td className="p-2">{match.managers?.name ?? 'Sin manager'}</td>
-                      <td className="whitespace-nowrap p-2 font-semibold">{match.our_goals} – {match.opponent_goals}</td>
-                      <td className="whitespace-nowrap p-2">{new Date(match.played_at).toLocaleString('es-ES')}</td>
-                    </tr>
-                  ))}</tbody>
+                  <tbody>{history.map((match) => {
+                    const result = getMatchResult(match.our_goals, match.opponent_goals)
+                    const resultLabel = result === 'win' ? 'Victoria' : result === 'draw' ? 'Empate' : 'Derrota'
+                    const resultClass = result === 'win' ? 'text-emerald-400' : result === 'draw' ? 'text-amber-300' : 'text-red-400'
+
+                    return (
+                      <tr key={match.id} className="border-t border-zinc-800">
+                        <td className="p-2">{match.opponents?.name}</td>
+                        <td className="p-2">{match.managers?.name ?? 'Sin manager'}</td>
+                        <td className="whitespace-nowrap p-2 font-semibold">{match.our_goals} – {match.opponent_goals}</td>
+                        <td className={`whitespace-nowrap p-2 font-medium ${resultClass}`}>{resultLabel}</td>
+                        <td className="whitespace-nowrap p-2">{new Date(match.played_at).toLocaleString('es-ES')}</td>
+                      </tr>
+                    )
+                  })}</tbody>
                 </table>
               </div>
             ) : (
