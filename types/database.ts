@@ -47,6 +47,7 @@ export type Database = {
           id: number
           is_active: boolean
           name: string
+          profile_id: string | null
         }
         Insert: {
           assists?: number
@@ -55,6 +56,7 @@ export type Database = {
           id?: number
           is_active?: boolean
           name: string
+          profile_id?: string | null
         }
         Update: {
           assists?: number
@@ -63,11 +65,17 @@ export type Database = {
           id?: number
           is_active?: boolean
           name?: string
+          profile_id?: string | null
         }
         Relationships: []
       }
       matches: {
         Row: {
+          can_edit_other_player_stats: boolean
+          can_manage_matches: boolean
+          can_manage_seasons: boolean
+          can_send_invites: boolean
+          can_view_other_manager_stats: boolean
           created_at: string
           id: number
           location: string | null
@@ -80,6 +88,11 @@ export type Database = {
           season_id: number
         }
         Insert: {
+          can_edit_other_player_stats?: boolean
+          can_manage_matches?: boolean
+          can_manage_seasons?: boolean
+          can_send_invites?: boolean
+          can_view_other_manager_stats?: boolean
           created_at?: string
           id?: number
           location?: string | null
@@ -92,6 +105,11 @@ export type Database = {
           season_id: number
         }
         Update: {
+          can_edit_other_player_stats?: boolean
+          can_manage_matches?: boolean
+          can_manage_seasons?: boolean
+          can_send_invites?: boolean
+          can_view_other_manager_stats?: boolean
           created_at?: string
           id?: number
           location?: string | null
@@ -147,6 +165,11 @@ export type Database = {
       }
       profiles: {
         Row: {
+          can_edit_other_player_stats: boolean
+          can_manage_matches: boolean
+          can_manage_seasons: boolean
+          can_send_invites: boolean
+          can_view_other_manager_stats: boolean
           created_at: string
           display_name: string | null
           email: string
@@ -154,6 +177,11 @@ export type Database = {
           role: string
         }
         Insert: {
+          can_edit_other_player_stats?: boolean
+          can_manage_matches?: boolean
+          can_manage_seasons?: boolean
+          can_send_invites?: boolean
+          can_view_other_manager_stats?: boolean
           created_at?: string
           display_name?: string | null
           email: string
@@ -161,6 +189,11 @@ export type Database = {
           role?: string
         }
         Update: {
+          can_edit_other_player_stats?: boolean
+          can_manage_matches?: boolean
+          can_manage_seasons?: boolean
+          can_send_invites?: boolean
+          can_view_other_manager_stats?: boolean
           created_at?: string
           display_name?: string | null
           email?: string

@@ -4,6 +4,7 @@ import { EditMatchForm } from '@/components/edit-match-form'
 import { getDashboardData } from '@/lib/data/get-dashboard-data'
 import { getMatchResult } from '@/lib/matches/result'
 import { DeleteMatchButton } from '@/components/delete-match-button'
+import { getAuthenticatedProfile } from '@/lib/auth/require-permission'
 
 export default async function MatchesPage() {
   const {
@@ -12,6 +13,8 @@ export default async function MatchesPage() {
     managers,
     opponents,
   } = await getDashboardData()
+  const { profile } = await getAuthenticatedProfile()
+  const canManageMatches = profile.role === 'admin' || profile.can_manage_matches
 
   const seasonOptions = seasons.map((season) => ({
     id: season.id,
@@ -51,7 +54,7 @@ export default async function MatchesPage() {
             </p>
           </div>
 
-          <section className="mb-8 rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+          {canManageMatches ? <section className="mb-8 rounded-xl border border-zinc-800 bg-zinc-900 p-5">
             <h2 className="mb-4 text-lg font-semibold">
               Registrar partido
             </h2>
@@ -63,6 +66,7 @@ export default async function MatchesPage() {
               matches={matches}
             />
           </section>
+          : <section className="mb-8 rounded-xl border border-zinc-800 bg-zinc-900 p-5 text-sm text-zinc-400">Puedes consultar la información de partidos, pero no tienes permiso para registrarlos o editarlos.</section>}
 
           {showRecentMatches && (
           <section className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900">

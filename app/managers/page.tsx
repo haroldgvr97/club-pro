@@ -1,10 +1,13 @@
 import { AppSidebar } from '@/components/app-sidebar'
-import { CreateManagerForm } from '@/components/create-manager-form'
 import { StatisticsDashboard } from '@/components/statistics-dashboard'
 import { getDashboardData } from '@/lib/data/get-dashboard-data'
+import { getAuthenticatedProfile } from '@/lib/auth/require-permission'
 
 export default async function ManagersPage() {
-  const { managers, matches } = await getDashboardData()
+  const [{ managers, matches }, { user, profile }] = await Promise.all([
+    getDashboardData(),
+    getAuthenticatedProfile(),
+  ])
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white md:flex">
@@ -19,15 +22,17 @@ export default async function ManagersPage() {
             </p>
           </div>
 
-          <section className="mb-8 rounded-xl border border-zinc-800 bg-zinc-900 p-5">
-            <h2 className="mb-4 text-lg font-semibold">
-              Agregar Manager/Jugador
-            </h2>
-
-            <CreateManagerForm />
-          </section>
-
-          <StatisticsDashboard managers={managers} matches={matches} />
+          <StatisticsDashboard
+            managers={managers}
+            matches={matches}
+            viewerProfileId={user.id}
+            canViewOtherManagers={
+              profile.role === 'admin' || profile.can_view_other_manager_stats
+            }
+            canEditOtherPlayers={
+              profile.role === 'admin' || profile.can_edit_other_player_stats
+            }
+          />
         </div>
       </main>
     </div>

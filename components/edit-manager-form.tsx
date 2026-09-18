@@ -7,10 +7,10 @@ import type { ManagerPlayerStats } from '@/lib/stats/manager-player'
 
 type Props = {
   managerId: number
-  currentName: string
   goals: number
   assists: number
   stats: ManagerPlayerStats
+  canEdit: boolean
 }
 
 type State = {
@@ -22,10 +22,10 @@ const initialState: State = {}
 
 export function EditManagerForm({
   managerId,
-  currentName,
   goals,
   assists,
   stats,
+  canEdit,
 }: Props) {
   const [state, formAction, pending] = useActionState(
     async (_previousState: State, formData: FormData) => {
@@ -40,7 +40,6 @@ export function EditManagerForm({
       className="rounded-lg border border-zinc-800 bg-zinc-950 p-4"
     >
       <input type="hidden" name="manager_id" value={managerId} />
-      <input type="hidden" name="name" value={currentName} />
 
       <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="font-medium">Estadísticas como Jugador</h2>
@@ -49,7 +48,7 @@ export function EditManagerForm({
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <Stat label="Partidos jugados" value={stats.played} />
-        <label className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-xs text-zinc-400">
+        {canEdit ? <label className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-xs text-zinc-400">
           <span className="block">Goles</span>
           <input
             name="goals"
@@ -60,8 +59,8 @@ export function EditManagerForm({
             required
             className="mt-1 w-full bg-transparent text-xl font-semibold text-emerald-400 outline-none"
           />
-        </label>
-        <label className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-xs text-zinc-400">
+        </label> : <Stat label="Goles" value={goals} />}
+        {canEdit ? <label className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-xs text-zinc-400">
           <span className="block">Asistencias</span>
           <input
             name="assists"
@@ -72,12 +71,12 @@ export function EditManagerForm({
             required
             className="mt-1 w-full bg-transparent text-xl font-semibold text-sky-400 outline-none"
           />
-        </label>
+        </label> : <Stat label="Asistencias" value={assists} />}
         <Stat label="Goles por partido" value={stats.goalsPerGame} />
         <Stat label="Participaciones de gol" value={stats.goalContributions} />
       </div>
 
-      <div className="mt-4 flex justify-end">
+      {canEdit ? <div className="mt-4 flex justify-end">
         <button
           type="submit"
           disabled={pending}
@@ -85,7 +84,7 @@ export function EditManagerForm({
         >
           {pending ? 'Guardando...' : 'Guardar'}
         </button>
-      </div>
+      </div> : null}
 
       <div aria-live="polite" className="mt-3">
         {state?.error ? <p className="text-sm text-red-400">{state.error}</p> : null}

@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { requirePermission } from '@/lib/auth/require-permission'
 import { createAdminClient } from '@/utils/supabase/admin'
 
 export async function inviteUserV2(formData: FormData) {
@@ -10,35 +10,13 @@ export async function inviteUserV2(formData: FormData) {
     return { error: 'Correo inválido.' }
   }
 
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
-
-  if (userError || !user) {
-    return { error: 'Sesión no válida.' }
-  }
-
-  const { data: aal } =
-    await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
-
-  if (aal?.currentLevel !== 'aal2') {
-    return { error: 'Se requiere verificación 2FA.' }
+  try {
+    await requirePermission('can_send_invites')
+  } catch {
+    return { error: 'No autorizado para enviar invitaciones.' }
   }
 
   const admin = createAdminClient()
-
-  const { data: profile, error: profileError } = await admin
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  if (profileError || profile?.role !== 'admin') {
-    return { error: 'No autorizado como administrador.' }
-  }
 
   const { error: inviteError } =
     await admin.auth.admin.inviteUserByEmail(

@@ -2,6 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import { requireAdmin } from '@/lib/auth/require-admin'
+import { getAuthenticatedProfile } from '@/lib/auth/require-permission'
+import { createAdminClient } from '@/utils/supabase/admin'
 
 export async function createManager(formData: FormData) {
   const name = formData.get('name')
@@ -36,16 +38,11 @@ export async function createManager(formData: FormData) {
 }
 export async function updateManager(formData: FormData) {
   const managerId = Number(formData.get('manager_id'))
-  const name = formData.get('name')
   const goals = Number(formData.get('goals'))
   const assists = Number(formData.get('assists'))
 
   if (!Number.isInteger(managerId) || managerId <= 0) {
     return { error: 'Manager inválido.' }
-  }
-
-  if (typeof name !== 'string' || !name.trim()) {
-    return { error: 'El nombre del manager es obligatorio.' }
   }
 
   if (!Number.isInteger(goals) || goals < 0) {
@@ -57,12 +54,30 @@ export async function updateManager(formData: FormData) {
   }
 
   try {
-    const { supabase } = await requireAdmin()
+    const { user, profile } = await getAuthenticatedProfile()
+    const supabase = createAdminClient()
+    const { data: manager, error: managerError } = await supabase
+      .from('managers')
+      .select('profile_id')
+      .eq('id', managerId)
+      .maybeSingle()
+
+    if (managerError || !manager) {
+      return { error: 'El Manager no existe.' }
+    }
+
+    const canEdit =
+      profile.role === 'admin' ||
+      manager.profile_id === user.id ||
+      profile.can_edit_other_player_stats
+
+    if (!canEdit) {
+      return { error: 'No tienes permiso para editar las estadísticas de este Jugador.' }
+    }
 
     const { data, error } = await supabase
       .from('managers')
       .update({
-        name: name.trim(),
         goals,
         assists,
       })
@@ -71,10 +86,6 @@ export async function updateManager(formData: FormData) {
       .maybeSingle()
 
     if (error) {
-      if (error.code === '23505') {
-        return { error: 'Ya existe un manager con ese nombre.' }
-      }
-
       return { error: 'No se pudo actualizar el manager.' }
     }
 

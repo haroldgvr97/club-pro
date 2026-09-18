@@ -5,9 +5,14 @@ import { DeleteSeasonButton } from '@/components/delete-season-button'
 import { EditSeasonForm } from '@/components/edit-season-form'
 import { SeasonMatchHistory } from '@/components/season-match-history'
 import { getDashboardData } from '@/lib/data/get-dashboard-data'
+import { getAuthenticatedProfile } from '@/lib/auth/require-permission'
 
 export default async function SeasonsPage() {
-  const { seasons, matches, managers } = await getDashboardData()
+  const [{ seasons, matches, managers }, { profile }] = await Promise.all([
+    getDashboardData(),
+    getAuthenticatedProfile(),
+  ])
+  const canManageSeasons = profile.role === 'admin' || profile.can_manage_seasons
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white md:flex">
@@ -22,10 +27,11 @@ export default async function SeasonsPage() {
             </p>
           </div>
 
-          <section className="mb-8 rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+          {canManageSeasons ? <section className="mb-8 rounded-xl border border-zinc-800 bg-zinc-900 p-5">
             <h2 className="mb-4 text-lg font-semibold">Agregar Temporada</h2>
             <CreateSeasonForm />
           </section>
+          : null}
 
           <section className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900">
             {seasons.length === 0 ? (
@@ -50,14 +56,14 @@ export default async function SeasonsPage() {
                           </p>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-3">
+                        {canManageSeasons ? <div className="flex flex-wrap items-center gap-3">
                           <ActivateSeasonButton seasonId={season.id} isActive={season.is_active} />
                           <DeleteSeasonButton seasonId={season.id} />
-                        </div>
+                        </div> : null}
                       </div>
 
-                      <EditSeasonForm seasonId={season.id} currentName={season.name}
-                        startDate={season.start_date} endDate={season.end_date} />
+                      {canManageSeasons ? <EditSeasonForm seasonId={season.id} currentName={season.name}
+                        startDate={season.start_date} endDate={season.end_date} /> : null}
 
                       <SeasonMatchHistory seasonName={season.name} matches={seasonMatches}
                         managers={managers.map((manager) => ({ id: manager.id, name: manager.name }))} />

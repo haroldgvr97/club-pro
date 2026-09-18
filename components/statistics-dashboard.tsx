@@ -1,9 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { DeleteManagerButton } from '@/components/delete-manager-button'
 import { EditManagerForm } from '@/components/edit-manager-form'
-import { ManagerStatusButton } from '@/components/manager-status-button'
 import { getManagerPlayerStats } from '@/lib/stats/manager-player'
 import { getMatchResult } from '@/lib/matches/result'
 
@@ -13,6 +11,7 @@ type Manager = {
   is_active: boolean
   goals: number
   assists: number
+  profile_id: string | null
 }
 
 type Match = {
@@ -27,15 +26,21 @@ type Match = {
 type Props = {
   managers: Manager[]
   matches: Match[]
+  viewerProfileId: string
+  canViewOtherManagers: boolean
+  canEditOtherPlayers: boolean
 }
 
-export function StatisticsDashboard({ managers, matches }: Props) {
+export function StatisticsDashboard({ managers, matches, viewerProfileId, canViewOtherManagers, canEditOtherPlayers }: Props) {
   const [section, setSection] = useState<'managers' | 'players'>('managers')
   const [selectedManagerId, setSelectedManagerId] = useState<number | null>(null)
 
   const selectedManager = managers.find(
     (manager) => manager.id === selectedManagerId
   )
+  const visibleManagers = canViewOtherManagers
+    ? managers
+    : managers.filter((manager) => manager.profile_id === viewerProfileId)
 
   function showManagers() {
     setSection('managers')
@@ -76,20 +81,21 @@ export function StatisticsDashboard({ managers, matches }: Props) {
         selectedManager ? (
           <ManagerDetails manager={selectedManager} matches={matches} onBack={showManagers} />
         ) : (
-          <ManagerPicker managers={managers} matches={matches} onSelect={setSelectedManagerId} />
+          <ManagerPicker managers={visibleManagers} matches={matches} onSelect={setSelectedManagerId} />
         )
       ) : (
         selectedManager ? (
-          <PlayerDetails manager={selectedManager} matches={matches} onBack={() => setSelectedManagerId(null)} />
+          <PlayerDetails manager={selectedManager} matches={matches} onBack={() => setSelectedManagerId(null)}
+            canEdit={selectedManager.profile_id === viewerProfileId || canEditOtherPlayers} />
         ) : (
-          <PlayerPicker managers={managers} onSelect={setSelectedManagerId} />
+          <PlayerPicker managers={visibleManagers} onSelect={setSelectedManagerId} />
         )
       )}
     </section>
   )
 }
 
-function ManagerPicker({ managers, matches, onSelect }: Props & { onSelect: (id: number) => void }) {
+function ManagerPicker({ managers, matches, onSelect }: { managers: Manager[]; matches: Match[]; onSelect: (id: number) => void }) {
   return (
     <div>
       <h2 className="text-lg font-semibold">Estadísticas de Managers</h2>
@@ -193,7 +199,7 @@ function PlayerPicker({ managers, onSelect }: { managers: Manager[]; onSelect: (
   )
 }
 
-function PlayerDetails({ manager, matches, onBack }: { manager: Manager; matches: Match[]; onBack: () => void }) {
+function PlayerDetails({ manager, matches, onBack, canEdit }: { manager: Manager; matches: Match[]; onBack: () => void; canEdit: boolean }) {
   const stats = getManagerPlayerStats(matches, manager.id, manager.goals, manager.assists)
 
   return (
@@ -206,12 +212,8 @@ function PlayerDetails({ manager, matches, onBack }: { manager: Manager; matches
           <h2 className="text-2xl font-bold">{manager.name}</h2>
           <p className="text-sm text-zinc-500">{manager.is_active ? 'Activo' : 'Inactivo'}</p>
         </div>
-        <div className="flex flex-wrap gap-3">
-          <ManagerStatusButton managerId={manager.id} isActive={manager.is_active} />
-          <DeleteManagerButton managerId={manager.id} />
-        </div>
       </div>
-      <EditManagerForm managerId={manager.id} currentName={manager.name} goals={manager.goals} assists={manager.assists} stats={stats} />
+      <EditManagerForm managerId={manager.id} goals={manager.goals} assists={manager.assists} stats={stats} canEdit={canEdit} />
     </div>
   )
 }

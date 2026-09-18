@@ -2,7 +2,7 @@
 
 import { useActionState, useId, useState } from 'react'
 import { createMatch } from '@/app/actions/matches'
-import { getOpponentHistory, normalizeOpponentName, type OpponentMatch } from '@/lib/matches/opponents'
+import { getOpponentHistory, getSimilarOpponentNames, normalizeOpponentName, type OpponentMatch } from '@/lib/matches/opponents'
 import { getMatchResult } from '@/lib/matches/result'
 
 type Option = { id: number; name: string }
@@ -40,6 +40,10 @@ export function CreateMatchForm({ seasons, managers, opponents, matches }: Props
   const existing = opponents.find((opponent) =>
     normalizeOpponentName(opponent.name) === normalizeOpponentName(opponentName)
   )
+  const similarOpponents = getSimilarOpponentNames(
+    opponents.map((opponent) => opponent.name),
+    opponentName
+  )
 
   return (
     <form action={formAction} className="space-y-5">
@@ -54,6 +58,16 @@ export function CreateMatchForm({ seasons, managers, opponents, matches }: Props
             <datalist id={listId}>
               {opponents.map((opponent) => <option key={opponent.id} value={opponent.name} />)}
             </datalist>
+            {similarOpponents.length ? (
+              <div className="pt-1 text-xs text-amber-300">
+                <span>¿Buscabas este rival? </span>
+                {similarOpponents.slice(0, 3).map((name) => (
+                  <button key={name} type="button" onClick={() => setOpponentName(name)} className="mr-2 underline hover:text-amber-100">
+                    {name}
+                  </button>
+                ))}
+              </div>
+            ) : null}
           </label>
           <label className="space-y-2 text-sm">
             <span>Manager que dirige el partido</span>

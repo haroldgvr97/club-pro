@@ -1,7 +1,8 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { requireAdmin } from '@/lib/auth/require-admin'
+import { requirePermission } from '@/lib/auth/require-permission'
+import { createAdminClient } from '@/utils/supabase/admin'
 
 export async function createSeason(formData: FormData) {
   const name = formData.get('name')
@@ -29,7 +30,8 @@ export async function createSeason(formData: FormData) {
   }
 
   try {
-    const { supabase } = await requireAdmin()
+    await requirePermission('can_manage_seasons')
+    const supabase = createAdminClient()
 
     const { error } = await supabase
       .from('seasons')
@@ -62,7 +64,8 @@ export async function activateSeason(formData: FormData) {
   }
 
   try {
-    const { supabase } = await requireAdmin()
+    await requirePermission('can_manage_seasons')
+    const supabase = createAdminClient()
 
     const { error } = await supabase.rpc('activate_season', {
       p_season_id: seasonId,
@@ -91,7 +94,8 @@ export async function deleteSeason(formData: FormData) {
   }
 
   try {
-    const { supabase } = await requireAdmin()
+    await requirePermission('can_manage_seasons')
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('seasons')
@@ -154,7 +158,8 @@ export async function updateSeason(formData: FormData) {
   }
 
   try {
-    const { supabase } = await requireAdmin()
+    await requirePermission('can_manage_seasons')
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('seasons')

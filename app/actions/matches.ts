@@ -1,8 +1,9 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { requireAdmin } from '@/lib/auth/require-admin'
-import { normalizeOpponentName } from '@/lib/matches/opponents'
+import { requirePermission } from '@/lib/auth/require-permission'
+import { getSimilarOpponentNames, normalizeOpponentName } from '@/lib/matches/opponents'
+import { createAdminClient } from '@/utils/supabase/admin'
 
 export async function createMatch(formData: FormData) {
   const seasonId = Number(formData.get('season_id'))
@@ -63,7 +64,8 @@ export async function createMatch(formData: FormData) {
   }
 
   try {
-    const { supabase } = await requireAdmin()
+    await requirePermission('can_manage_matches')
+    const supabase = createAdminClient()
 
     if (opponentName) {
       const { data: opponents, error: lookupError } = await supabase
@@ -76,6 +78,13 @@ export async function createMatch(formData: FormData) {
       if (existing) {
         opponentId = existing.id
       } else {
+        const similar = getSimilarOpponentNames(
+          opponents?.map((opponent) => opponent.name) ?? [],
+          opponentName
+        )
+        if (similar.length) {
+          return { error: `Ya existe un rival similar: ${similar[0]}. Selecciónalo para evitar duplicados.` }
+        }
         const { data: created, error: opponentError } = await supabase
           .from('opponents').insert({ name: opponentName }).select('id').single()
         if (opponentError?.code === '23505') {
@@ -134,7 +143,8 @@ export async function deleteMatch(formData: FormData) {
   }
 
   try {
-    const { supabase } = await requireAdmin()
+    await requirePermission('can_manage_matches')
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('matches')
@@ -224,7 +234,8 @@ export async function updateMatch(formData: FormData) {
   }
 
   try {
-    const { supabase } = await requireAdmin()
+    await requirePermission('can_manage_matches')
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('matches')

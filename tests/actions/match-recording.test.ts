@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createMatch } from '@/app/actions/matches'
-import { requireAdmin } from '@/lib/auth/require-admin'
+import { requirePermission } from '@/lib/auth/require-permission'
+import { createAdminClient } from '@/utils/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
-vi.mock('@/lib/auth/require-admin', () => ({ requireAdmin: vi.fn() }))
+vi.mock('@/lib/auth/require-permission', () => ({ requirePermission: vi.fn() }))
+vi.mock('@/utils/supabase/admin', () => ({ createAdminClient: vi.fn() }))
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 
 function form() {
@@ -18,7 +20,8 @@ function database(existing: { id: number; name: string }[] = []) {
   const client = { from: vi.fn((table: string) => table === 'matches'
     ? { insert: saveMatch }
     : { select: async () => ({ data: existing, error: null }), insert: createTeam }) }
-  vi.mocked(requireAdmin).mockResolvedValue({ supabase: client } as unknown as Awaited<ReturnType<typeof requireAdmin>>)
+  vi.mocked(requirePermission).mockResolvedValue({} as Awaited<ReturnType<typeof requirePermission>>)
+  vi.mocked(createAdminClient).mockReturnValue(client as unknown as ReturnType<typeof createAdminClient>)
   return { saveMatch, createTeam }
 }
 
@@ -41,10 +44,10 @@ describe('record a match by team name', () => {
     const data = form()
     data.delete('our_goals')
     expect(await createMatch(data)).toEqual({ error: 'Nuestros goles son inválidos.' })
-    expect(requireAdmin).not.toHaveBeenCalled()
+    expect(requirePermission).not.toHaveBeenCalled()
   })
   it('does not write when the user is unauthorized', async () => {
-    vi.mocked(requireAdmin).mockRejectedValue(new Error('UNAUTHORIZED'))
+    vi.mocked(requirePermission).mockRejectedValue(new Error('UNAUTHORIZED'))
     expect(await createMatch(form())).toEqual({ error: 'No autorizado.' })
   })
 })

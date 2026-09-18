@@ -1,74 +1,26 @@
-'use client'
-
-import { useState } from 'react'
-
 import { AppSidebar } from '@/components/app-sidebar'
-import { inviteUserV2 } from './invite-action'
+import { UserManagement } from '@/components/user-management'
+import { getAuthenticatedProfile } from '@/lib/auth/require-permission'
+import { createAdminClient } from '@/utils/supabase/admin'
 
-export default function AdminUsersPage() {
-  const [message, setMessage] = useState('')
-  const [loading, setLoading] = useState(false)
-
-  async function handleSubmit(formData: FormData) {
-    setLoading(true)
-    setMessage('')
-
-    const result = await inviteUserV2(formData)
-
-    if (result.error) {
-      setMessage(result.error)
-    } else {
-      setMessage('Invitación enviada correctamente.')
-    }
-
-    setLoading(false)
-  }
+export default async function AdminUsersPage() {
+  const { profile } = await getAuthenticatedProfile()
+  const isAdmin = profile.role === 'admin'
+  const canSendInvites = isAdmin || profile.can_send_invites
+  const profiles = isAdmin
+    ? (await createAdminClient()
+        .from('profiles')
+        .select('id, email, display_name, role, can_manage_matches, can_edit_other_player_stats, can_view_other_manager_stats, can_send_invites, can_manage_seasons')
+        .order('created_at')).data ?? []
+    : []
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white md:flex">
       <AppSidebar />
-
-      <main className="flex-1">
-        <div className="mx-auto max-w-7xl px-6 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold">Usuarios</h1>
-            <p className="mt-1 text-sm text-zinc-400">
-              Administración e invitación de usuarios
-            </p>
-          </div>
-
-          <section className="max-w-xl rounded-xl border border-zinc-800 bg-zinc-900 p-5">
-            <h2 className="mb-4 text-lg font-semibold">
-              Invitar usuario
-            </h2>
-
-            <form
-              action={handleSubmit}
-              className="flex flex-col gap-4"
-            >
-              <input
-                name="email"
-                type="email"
-                placeholder="Correo electrónico"
-                required
-                className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2"
-              />
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-black disabled:opacity-50"
-              >
-                {loading ? 'Enviando...' : 'Enviar invitación'}
-              </button>
-
-              {message ? (
-                <p className="text-sm text-zinc-300">{message}</p>
-              ) : null}
-            </form>
-          </section>
-        </div>
-      </main>
+      <main className="flex-1"><div className="mx-auto max-w-7xl px-6 py-8">
+        <div className="mb-8"><h1 className="text-3xl font-bold">Usuarios</h1><p className="mt-1 text-sm text-zinc-400">Invitaciones, cuentas y permisos</p></div>
+        <UserManagement profiles={profiles} canManagePermissions={isAdmin} canSendInvites={canSendInvites} />
+      </div></main>
     </div>
   )
 }
