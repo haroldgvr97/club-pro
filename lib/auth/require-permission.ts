@@ -24,12 +24,12 @@ export async function getAuthenticatedProfile() {
 
   if (profileError || !profile) throw new Error('UNAUTHORIZED')
 
-  return { user, profile }
+  return { supabase, user, profile }
 }
 
 export async function requirePermission(permission: Permission) {
-  const { user, profile } = await getAuthenticatedProfile()
+  const { supabase, user, profile } = await getAuthenticatedProfile()
   if (profile.role !== 'admin' && !profile[permission]) throw new Error('FORBIDDEN')
 
-  return { user, profile }
+  return { supabase, user, profile }
 }
