@@ -35,6 +35,9 @@ export default async function MatchesPage() {
     name: opponent.name,
   }))
 
+  // Se conserva para poder volver a mostrar el historial en esta pantalla.
+  const showRecentMatches = false
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white md:flex">
       <AppSidebar />
@@ -61,6 +64,7 @@ export default async function MatchesPage() {
             />
           </section>
 
+          {showRecentMatches && (
           <section className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900">
             {matches.length === 0 ? (
               <div className="px-6 py-12 text-center text-sm text-zinc-400">
@@ -139,6 +143,7 @@ export default async function MatchesPage() {
               </div>
             )}
           </section>
+          )}
         </div>
       </main>
     </div>
