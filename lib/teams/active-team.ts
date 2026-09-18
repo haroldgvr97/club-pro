@@ -15,9 +15,15 @@ export async function getActiveTeamId() {
           .eq('team_id', requestedTeamId)
           .maybeSingle()
       : { data: null }
-  const { data } = requestedTeam
+  const { data: visibleTeam } = requestedTeam
     ? { data: requestedTeam }
-    : await supabase.from('team_members').select('team_id').limit(1).maybeSingle()
+    : { data: null }
+
+  const { data: resolvedTeamId } = visibleTeam
+    ? { data: visibleTeam.team_id }
+    : await supabase.rpc('get_my_team_id')
+
+  const data = resolvedTeamId ? { team_id: Number(resolvedTeamId) } : null
 
   if (!data) {
     const { data: authData } = await supabase.auth.getUser()

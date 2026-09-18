@@ -244,6 +244,7 @@ export type Database = {
     }
     Functions: {
       activate_season: { Args: { p_season_id: number }; Returns: undefined }
+      get_my_team_id: { Args: never; Returns: number | null }
       is_admin: { Args: never; Returns: boolean }
       set_profile_display_name: {
         Args: { p_display_name: string }
