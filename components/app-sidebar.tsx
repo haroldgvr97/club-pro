@@ -13,7 +13,7 @@ export function AppSidebar() {
   return (
     <aside className="w-full border-b border-zinc-800 bg-zinc-950 md:min-h-screen md:w-64 md:border-b-0 md:border-r">
       <div className="p-6">
-        <h2 className="text-xl font-bold text-white">Club Pro</h2>
+        <h2 className="text-xl font-bold text-white">Clubes Pro</h2>
       </div>
 
       <nav className="flex gap-2 overflow-x-auto px-4 pb-4 md:flex-col md:overflow-visible">
