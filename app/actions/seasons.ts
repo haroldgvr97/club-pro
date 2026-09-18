@@ -52,6 +52,7 @@ export async function createSeason(formData: FormData) {
       return { error: 'No se pudo crear la temporada.' }
     }
 
+    revalidatePath('/seasons')
     revalidatePath('/')
 
     return { success: true }
