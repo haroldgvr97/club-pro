@@ -1,4 +1,8 @@
+import { ActivateSeasonButton } from '@/components/activate-season-button'
 import { AppSidebar } from '@/components/app-sidebar'
+import { CreateSeasonForm } from '@/components/create-season-form'
+import { DeleteSeasonButton } from '@/components/delete-season-button'
+import { EditSeasonForm } from '@/components/edit-season-form'
 import { getDashboardData } from '@/lib/data/get-dashboard-data'
 
 export default async function SeasonsPage() {
@@ -17,6 +21,14 @@ export default async function SeasonsPage() {
             </p>
           </div>
 
+          <section className="mb-8 rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+            <h2 className="mb-4 text-lg font-semibold">
+              Agregar temporada
+            </h2>
+
+            <CreateSeasonForm />
+          </section>
+
           <section className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900">
             {seasons.length === 0 ? (
               <div className="px-6 py-12 text-center text-sm text-zinc-400">
@@ -27,19 +39,35 @@ export default async function SeasonsPage() {
                 {seasons.map((season) => (
                   <div
                     key={season.id}
-                    className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-4 px-5 py-4"
                   >
-                    <div>
-                      <p className="font-medium">{season.name}</p>
-                      <p className="text-sm text-zinc-500">
-                        {season.start_date ?? 'Sin fecha de inicio'} -{' '}
-                        {season.end_date ?? 'Sin fecha de fin'}
-                      </p>
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                      <div>
+                        <p className="font-medium">{season.name}</p>
+                        <p className="text-sm text-zinc-500">
+                          {season.start_date ?? 'Sin fecha de inicio'} -{' '}
+                          {season.end_date ?? 'Sin fecha de fin'}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-3">
+                        <ActivateSeasonButton
+                          seasonId={season.id}
+                          isActive={season.is_active}
+                        />
+
+                        <DeleteSeasonButton
+                          seasonId={season.id}
+                        />
+                      </div>
                     </div>
 
-                    <span className="text-sm text-zinc-400">
-                      {season.is_active ? 'Activa' : 'Inactiva'}
-                    </span>
+                    <EditSeasonForm
+                      seasonId={season.id}
+                      currentName={season.name}
+                      startDate={season.start_date}
+                      endDate={season.end_date}
+                    />
                   </div>
                 ))}
               </div>
