@@ -3,7 +3,6 @@
 import { revalidatePath } from 'next/cache'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { getAuthenticatedProfile } from '@/lib/auth/require-permission'
-import { createAdminClient } from '@/utils/supabase/admin'
 import { getActiveTeamId } from '@/lib/teams/active-team'
 
 export async function createManager(formData: FormData) {
