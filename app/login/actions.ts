@@ -2,6 +2,8 @@
 
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
+import { cookies } from 'next/headers'
+import { ACTIVE_TEAM_COOKIE } from '@/lib/teams/active-team'
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
@@ -22,5 +24,6 @@ export async function login(formData: FormData) {
     redirect('/login?error=invalid_credentials')
   }
 
+  ;(await cookies()).delete(ACTIVE_TEAM_COOKIE)
   redirect('/')
 }

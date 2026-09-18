@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
+import { getActiveTeamId } from '@/lib/teams/active-team'
 import { getMatchSummary } from '@/lib/stats/summary'
 import { getManagerStats } from '@/lib/stats/managers'
 import { getOpponentStats } from '@/lib/stats/opponents'
@@ -6,6 +7,7 @@ import { getSeasonStats } from '@/lib/stats/seasons'
 
 export async function getDashboardStats() {
   const supabase = await createClient()
+  const teamId = await getActiveTeamId()
 
   const { data: matches, error } = await supabase
     .from('matches')
@@ -17,7 +19,7 @@ export async function getDashboardStats() {
         our_goals,
         opponent_goals
       `
-    )
+    ).eq('team_id', teamId)
 
   if (error) {
     throw new Error('No se pudieron cargar las estadísticas.')
@@ -32,4 +34,3 @@ export async function getDashboardStats() {
     seasons: getSeasonStats(safeMatches),
   }
 }
-

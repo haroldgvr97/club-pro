@@ -14,7 +14,13 @@ const links = [
 // La sección se conserva para poder volver a activarla más adelante.
 const showOpponentsLink = false
 
-export async function AppSidebar() {
+export async function AppSidebar({ teamsOnly = false }: { teamsOnly?: boolean } = {}) {
+  if (teamsOnly) return (
+    <aside className="w-full border-b border-zinc-800 bg-zinc-950 md:min-h-screen md:w-64 md:shrink-0 md:border-r">
+      <div className="p-6 text-xl font-bold text-white">Clubes Pro</div>
+      <nav className="px-4 pb-4"><Link href="/teams" className="block rounded-lg bg-zinc-800 px-4 py-2 text-white">Equipos</Link></nav>
+    </aside>
+  )
   const supabase = await createClient()
   const teamId = await getActiveTeamId()
   const { data: team } = await supabase.from('teams').select('name').eq('id', teamId).maybeSingle()
