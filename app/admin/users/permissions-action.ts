@@ -72,3 +72,29 @@ export async function deleteUser(formData: FormData) {
     return { error: 'No autorizado.' }
   }
 }
+
+export async function deleteOrphanManager(formData: FormData) {
+  const managerId = Number(formData.get('manager_id'))
+  if (!Number.isInteger(managerId) || managerId <= 0) return { error: 'Manager inválido.' }
+  try {
+    await requireAdmin()
+    const admin = createAdminClient()
+    const { data: manager, error: lookupError } = await admin
+      .from('managers')
+      .select('profile_id')
+      .eq('id', managerId)
+      .maybeSingle()
+    if (lookupError || !manager || manager.profile_id) {
+      return { error: 'Este Manager todavía pertenece a un usuario.' }
+    }
+    const { error } = await admin.from('managers').delete().eq('id', managerId)
+    if (error?.code === '23503') {
+      return { error: 'No se puede eliminar porque tiene partidos históricos asociados.' }
+    }
+    if (error) return { error: 'No se pudo eliminar el Manager.' }
+    revalidatePath('/admin/users')
+    return { success: true }
+  } catch {
+    return { error: 'No autorizado.' }
+  }
+}
