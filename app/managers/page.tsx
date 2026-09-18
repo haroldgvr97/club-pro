@@ -8,6 +8,10 @@ export default async function ManagersPage() {
     getDashboardData(),
     getAuthenticatedProfile(),
   ])
+  const visibleManagers =
+    profile.role === 'admin'
+      ? managers.filter((manager) => manager.profile_id !== user.id)
+      : managers
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white md:flex">
@@ -23,7 +27,7 @@ export default async function ManagersPage() {
           </div>
 
           <StatisticsDashboard
-            managers={managers}
+            managers={visibleManagers}
             matches={matches}
             viewerProfileId={user.id}
             canViewOtherManagers={
