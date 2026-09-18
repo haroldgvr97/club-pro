@@ -19,7 +19,7 @@ export default async function Home() {
   const { data: profile } = user
     ? await supabase
         .from('profiles')
-        .select('display_name')
+        .select('display_name, role')
         .eq('id', user.id)
         .maybeSingle()
     : { data: null }
@@ -57,13 +57,13 @@ export default async function Home() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <Link
+              {profile?.role === 'admin' && <Link
                 href="/teams"
                 aria-label="Regresar a equipos"
                 className="rounded-lg border border-zinc-700 px-4 py-2 text-sm hover:bg-zinc-900"
               >
                 ← Equipos
-              </Link>
+              </Link>}
               <form action={logout}>
                 <button
                   type="submit"

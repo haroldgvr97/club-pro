@@ -2,9 +2,11 @@ import { AppSidebar } from '@/components/app-sidebar'
 import { TeamManagement } from '@/components/team-management'
 import { getAuthenticatedProfile } from '@/lib/auth/require-permission'
 import { logout } from '@/app/logout-action'
+import { redirect } from 'next/navigation'
 
 export default async function TeamsPage() {
   const { supabase, profile } = await getAuthenticatedProfile()
+  if (profile.role !== 'admin') redirect('/')
   const { data, error } = await supabase.from('teams').select('id, name').order('name')
   if (error) throw new Error('No se pudieron cargar los equipos.')
   return <div className="min-h-screen bg-zinc-950 text-white md:flex">

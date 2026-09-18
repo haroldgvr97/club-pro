@@ -4,12 +4,11 @@ import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { requireAdmin } from '@/lib/auth/require-admin'
-import { getAuthenticatedProfile } from '@/lib/auth/require-permission'
 import { ACTIVE_TEAM_COOKIE } from '@/lib/teams/active-team'
 
 export async function selectTeam(form: FormData) {
   const id = Number(form.get('team_id'))
-  const { supabase } = await getAuthenticatedProfile()
+  const { supabase } = await requireAdmin()
   const { data, error } = await supabase.from('teams').select('id').eq('id', id).maybeSingle()
   if (error || !data) throw new Error('No se pudo abrir el equipo.')
   ;(await cookies()).set(ACTIVE_TEAM_COOKIE, String(id), { path: '/', sameSite: 'lax', httpOnly: true })
