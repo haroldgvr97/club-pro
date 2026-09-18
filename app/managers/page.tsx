@@ -70,49 +70,12 @@ export default async function ManagersPage() {
                       </div>
                     </div>
 
-                    <section
-                      aria-label={`Estadísticas como jugador de ${manager.name}`}
-                      className="rounded-lg border border-zinc-800 bg-zinc-950 p-4"
-                    >
-                      <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                        <h2 className="font-medium">Estadísticas como jugador</h2>
-                        <p className="text-xs text-zinc-500">
-                          Goles y asistencias se editan abajo.
-                        </p>
-                      </div>
-                      <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-                        <div>
-                          <dt className="text-xs text-zinc-400">Partidos jugados</dt>
-                          <dd className="mt-1 text-xl font-semibold">{stats.played}</dd>
-                        </div>
-                        <div>
-                          <dt className="text-xs text-zinc-400">Goles</dt>
-                          <dd className="mt-1 text-xl font-semibold text-emerald-400">{stats.goals}</dd>
-                        </div>
-                        <div>
-                          <dt className="text-xs text-zinc-400">Asistencias</dt>
-                          <dd className="mt-1 text-xl font-semibold text-sky-400">{stats.assists}</dd>
-                        </div>
-                        <div>
-                          <dt className="text-xs text-zinc-400">Goles por partido</dt>
-                          <dd className="mt-1 text-xl font-semibold">{stats.goalsPerGame}</dd>
-                        </div>
-                        <div>
-                          <dt className="text-xs text-zinc-400">Participaciones de gol</dt>
-                          <dd className="mt-1 text-xl font-semibold">{stats.goalContributions}</dd>
-                        </div>
-                        <div>
-                          <dt className="text-xs text-zinc-400">Participaciones por partido</dt>
-                          <dd className="mt-1 text-xl font-semibold">{stats.contributionsPerGame}</dd>
-                        </div>
-                      </dl>
-                    </section>
-
                     <EditManagerForm
                       managerId={manager.id}
                       currentName={manager.name}
                       goals={manager.goals}
                       assists={manager.assists}
+                      stats={stats}
                     />
                   </div>
                   )
