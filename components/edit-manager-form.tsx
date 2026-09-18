@@ -40,6 +40,7 @@ export function EditManagerForm({
       className="rounded-lg border border-zinc-800 bg-zinc-950 p-4"
     >
       <input type="hidden" name="manager_id" value={managerId} />
+      <input type="hidden" name="name" value={currentName} />
 
       <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="font-medium">Estadísticas como jugador</h2>
@@ -77,21 +78,11 @@ export function EditManagerForm({
         <Stat label="Participaciones por partido" value={stats.contributionsPerGame} />
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
-        <label className="text-sm text-zinc-300">
-          <span className="mb-1 block">Nombre del manager</span>
-          <input
-            name="name"
-            type="text"
-            defaultValue={currentName}
-            required
-            className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2"
-          />
-        </label>
+      <div className="mt-4 flex justify-end">
         <button
           type="submit"
           disabled={pending}
-          className="self-end rounded-lg border border-zinc-700 px-5 py-2 text-sm hover:bg-zinc-800 disabled:opacity-50"
+          className="rounded-lg border border-zinc-700 px-5 py-2 text-sm hover:bg-zinc-800 disabled:opacity-50"
         >
           {pending ? 'Guardando...' : 'Guardar'}
         </button>
