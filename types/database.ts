@@ -246,6 +246,7 @@ export type Database = {
       activate_season: { Args: { p_season_id: number }; Returns: undefined }
       assign_invited_user_to_team: { Args: { p_team_id: number; p_user_id: string }; Returns: undefined }
       set_team_permissions: { Args: { p_team_id: number; p_user_id: string; p_permissions: Json }; Returns: undefined }
+      update_player_stats: { Args: { p_team_id: number; p_manager_id: number; p_goals: number; p_assists: number }; Returns: undefined }
       create_managed_team: { Args: { p_name: string }; Returns: number }
       delete_managed_team: { Args: { p_team_id: number }; Returns: undefined }
       get_my_team_id: { Args: never; Returns: number | null }

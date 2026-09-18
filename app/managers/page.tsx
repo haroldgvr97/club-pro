@@ -33,9 +33,7 @@ export default async function ManagersPage() {
             canViewOtherManagers={
               profile.role === 'admin' || profile.can_view_other_manager_stats
             }
-            canEditOtherPlayers={
-              profile.role === 'admin' || profile.can_edit_other_player_stats
-            }
+            canEditOtherPlayers={profile.role === 'admin'}
             isAdmin={profile.role === 'admin'}
           />
         </div>

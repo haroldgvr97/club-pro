@@ -57,43 +57,18 @@ export async function updateManager(formData: FormData) {
   }
 
   try {
-    const { user, profile } = await getAuthenticatedProfile()
-    const supabase = createAdminClient()
-    const { data: manager, error: managerError } = await supabase
-      .from('managers')
-      .select('profile_id')
-      .eq('id', managerId)
-      .maybeSingle()
-
-    if (managerError || !manager) {
-      return { error: 'El Manager no existe.' }
-    }
-
-    const canEdit =
-      profile.role === 'admin' ||
-      manager.profile_id === user.id ||
-      profile.can_edit_other_player_stats
-
-    if (!canEdit) {
-      return { error: 'No tienes permiso para editar las estadísticas de este Jugador.' }
-    }
-
-    const { data, error } = await supabase
-      .from('managers')
-      .update({
-        goals,
-        assists,
-      })
-      .eq('id', managerId)
-      .select('id')
-      .maybeSingle()
-
+    const { supabase } = await getAuthenticatedProfile()
+    const teamId = await getActiveTeamId()
+    const { error } = await supabase.rpc('update_player_stats', {
+      p_team_id: teamId,
+      p_manager_id: managerId,
+      p_goals: goals,
+      p_assists: assists,
+    })
     if (error) {
-      return { error: 'No se pudo actualizar el manager.' }
-    }
-
-    if (!data) {
-      return { error: 'El manager no existe.' }
+      if (error.code === '42501') return { error: 'Solo puedes editar tus propias estadísticas de jugador.' }
+      if (error.message.includes('Player not found')) return { error: 'El Jugador no existe en este equipo.' }
+      return { error: 'No se pudieron actualizar las estadísticas del Jugador.' }
     }
 
     revalidatePath('/')
