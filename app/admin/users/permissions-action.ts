@@ -10,7 +10,8 @@ export async function updateUserPermissions(formData: FormData) {
   const userId = formData.get('user_id')
   if (typeof userId !== 'string' || !userId) return { error: 'Usuario inválido.' }
   try {
-    const { supabase, profile } = await getAuthenticatedProfile()
+    const { supabase, profile, user } = await getAuthenticatedProfile()
+    if (profile.role !== 'admin' && user.id === userId) return { error: 'Solo el administrador puede cambiar tus permisos.' }
     if (profile.role !== 'admin' && !profile.can_manage_permissions) return { error: 'No autorizado.' }
     const teamId = await getActiveTeamId()
     const permissions = {
