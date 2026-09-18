@@ -1,9 +1,15 @@
 import { AppSidebar } from '@/components/app-sidebar'
+import { CreateMatchForm } from '@/components/create-match-form'
 import { getDashboardData } from '@/lib/data/get-dashboard-data'
 import { getMatchResult } from '@/lib/matches/result'
 
 export default async function MatchesPage() {
-  const { matches } = await getDashboardData()
+  const {
+    matches,
+    seasons,
+    managers,
+    opponents,
+  } = await getDashboardData()
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white md:flex">
@@ -14,9 +20,32 @@ export default async function MatchesPage() {
           <div className="mb-8">
             <h1 className="text-3xl font-bold">Partidos</h1>
             <p className="mt-1 text-sm text-zinc-400">
-              Historial de partidos registrados
+              Historial y registro de partidos
             </p>
           </div>
+
+          <section className="mb-8 rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+            <h2 className="mb-4 text-lg font-semibold">
+              Registrar partido
+            </h2>
+
+            <CreateMatchForm
+              seasons={seasons.map((season) => ({
+                id: season.id,
+                name: season.name,
+              }))}
+              managers={managers
+                .filter((manager) => manager.is_active)
+                .map((manager) => ({
+                  id: manager.id,
+                  name: manager.name,
+                }))}
+              opponents={opponents.map((opponent) => ({
+                id: opponent.id,
+                name: opponent.name,
+              }))}
+            />
+          </section>
 
           <section className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900">
             {matches.length === 0 ? (
