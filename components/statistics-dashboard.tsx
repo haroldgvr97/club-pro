@@ -79,7 +79,11 @@ export function StatisticsDashboard({ managers, matches }: Props) {
           <ManagerPicker managers={managers} matches={matches} onSelect={setSelectedManagerId} />
         )
       ) : (
-        <PlayerStatistics managers={managers} matches={matches} />
+        selectedManager ? (
+          <PlayerDetails manager={selectedManager} matches={matches} onBack={() => setSelectedManagerId(null)} />
+        ) : (
+          <PlayerPicker managers={managers} onSelect={setSelectedManagerId} />
+        )
       )}
     </section>
   )
@@ -167,33 +171,47 @@ function ManagerDetails({ manager, matches, onBack }: { manager: Manager; matche
   )
 }
 
-function PlayerStatistics({ managers, matches }: Props) {
+function PlayerPicker({ managers, onSelect }: { managers: Manager[]; onSelect: (id: number) => void }) {
   return (
     <div>
       <h2 className="text-lg font-semibold">Estadísticas de Jugadores</h2>
-      <p className="mt-1 text-sm text-zinc-400">Goles y asistencias de cada jugador.</p>
+      <p className="mt-1 text-sm text-zinc-400">Elige un Jugador para ver y actualizar sus estadísticas.</p>
       {managers.length === 0 ? (
         <p className="py-10 text-center text-sm text-zinc-400">Todavía no hay Jugadores registrados.</p>
       ) : (
-        <div className="mt-5 space-y-4">
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {managers.map((manager) => (
-            <div key={manager.id} className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="font-semibold">{manager.name}</p>
-                  <p className="text-sm text-zinc-500">{manager.is_active ? 'Activo' : 'Inactivo'}</p>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  <ManagerStatusButton managerId={manager.id} isActive={manager.is_active} />
-                  <DeleteManagerButton managerId={manager.id} />
-                </div>
-              </div>
-              <EditManagerForm managerId={manager.id} currentName={manager.name} goals={manager.goals} assists={manager.assists}
-                stats={getManagerPlayerStats(matches, manager.id, manager.goals, manager.assists)} />
-            </div>
+            <button key={manager.id} type="button" onClick={() => onSelect(manager.id)}
+              className="rounded-xl border border-zinc-700 bg-zinc-950 p-4 text-left transition hover:border-zinc-500 hover:bg-zinc-800">
+              <p className="font-semibold">{manager.name}</p>
+              <p className="mt-1 text-sm text-zinc-400">{manager.goals} goles · {manager.assists} asistencias</p>
+            </button>
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+function PlayerDetails({ manager, matches, onBack }: { manager: Manager; matches: Match[]; onBack: () => void }) {
+  const stats = getManagerPlayerStats(matches, manager.id, manager.goals, manager.assists)
+
+  return (
+    <div>
+      <button type="button" onClick={onBack} className="mb-5 rounded-lg border border-zinc-700 px-3 py-2 text-sm hover:bg-zinc-800">
+        ← Volver a Jugadores
+      </button>
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">{manager.name}</h2>
+          <p className="text-sm text-zinc-500">{manager.is_active ? 'Activo' : 'Inactivo'}</p>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <ManagerStatusButton managerId={manager.id} isActive={manager.is_active} />
+          <DeleteManagerButton managerId={manager.id} />
+        </div>
+      </div>
+      <EditManagerForm managerId={manager.id} currentName={manager.name} goals={manager.goals} assists={manager.assists} stats={stats} />
     </div>
   )
 }
