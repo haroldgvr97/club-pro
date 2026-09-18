@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 
 export default function MFASetupPage() {
@@ -9,9 +9,11 @@ export default function MFASetupPage() {
   const [factorId, setFactorId] = useState<string | null>(null)
   const [code, setCode] = useState('')
   const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState(false)
+  const attemptedCode = useRef<string | null>(null)
 
   const router = useRouter()
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
 
   async function enrollMFA() {
     setMessage('')
@@ -30,9 +32,10 @@ export default function MFASetupPage() {
     setQrCode(data.totp.qr_code)
   }
 
-  async function verifyMFA() {
+  const verifyMFA = useCallback(async (verificationCode: string) => {
     if (!factorId) return
 
+    setLoading(true)
     setMessage('')
 
     const { data: challengeData, error: challengeError } =
@@ -42,22 +45,36 @@ export default function MFASetupPage() {
 
     if (challengeError) {
       setMessage(challengeError.message)
+      setLoading(false)
       return
     }
 
     const { error } = await supabase.auth.mfa.verify({
       factorId,
       challengeId: challengeData.id,
-      code,
+      code: verificationCode,
     })
 
     if (error) {
-      setMessage(error.message)
+      setMessage('Código incorrecto. Inténtalo nuevamente.')
+      setLoading(false)
       return
     }
 
     router.push('/')
-  }
+  }, [factorId, router, supabase])
+
+  useEffect(() => {
+    if (code.length !== 6) {
+      attemptedCode.current = null
+      return
+    }
+
+    if (!factorId || loading || attemptedCode.current === code) return
+
+    attemptedCode.current = code
+    void verifyMFA(code)
+  }, [code, factorId, loading, verifyMFA])
 
   return (
     <main className="flex min-h-screen items-center justify-center p-6">
@@ -90,16 +107,16 @@ export default function MFASetupPage() {
               autoComplete="one-time-code"
               placeholder="Código de 6 dígitos"
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+              maxLength={6}
               className="rounded border p-3"
             />
 
-            <button
-              onClick={verifyMFA}
-              className="rounded bg-black p-3 text-white"
-            >
-              Verificar 2FA
-            </button>
+            <p className="text-sm text-zinc-500">
+              {loading
+                ? 'Verificando código…'
+                : 'La verificación comenzará automáticamente al introducir los 6 dígitos.'}
+            </p>
           </>
         )}
 
