@@ -9,6 +9,9 @@ const links = [
   { href: '/admin/users', label: 'Usuarios' },
 ]
 
+// La sección se conserva para poder volver a activarla más adelante.
+const showOpponentsLink = false
+
 export function AppSidebar() {
   return (
     <aside className="w-full border-b border-zinc-800 bg-zinc-950 md:min-h-screen md:w-64 md:border-b-0 md:border-r">
@@ -17,7 +20,9 @@ export function AppSidebar() {
       </div>
 
       <nav className="flex gap-2 overflow-x-auto px-4 pb-4 md:flex-col md:overflow-visible">
-        {links.map((link) => (
+        {links
+          .filter((link) => showOpponentsLink || link.href !== '/opponents')
+          .map((link) => (
           <Link
             key={link.href}
             href={link.href}
@@ -25,7 +30,7 @@ export function AppSidebar() {
           >
             {link.label}
           </Link>
-        ))}
+          ))}
       </nav>
     </aside>
   )
