@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 
@@ -8,11 +8,12 @@ export default function MFAVerifyPage() {
   const [code, setCode] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
+  const attemptedCode = useRef<string | null>(null)
 
   const router = useRouter()
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
 
-  async function verifyMFA() {
+  const verifyMFA = useCallback(async (verificationCode: string) => {
     setLoading(true)
     setMessage('')
 
@@ -46,7 +47,7 @@ export default function MFAVerifyPage() {
     const { error: verifyError } = await supabase.auth.mfa.verify({
       factorId: factor.id,
       challengeId: challenge.id,
-      code,
+      code: verificationCode,
     })
 
     if (verifyError) {
@@ -56,7 +57,21 @@ export default function MFAVerifyPage() {
     }
 
     router.push('/')
-  }
+  }, [router, supabase])
+
+  useEffect(() => {
+    if (code.length !== 6) {
+      attemptedCode.current = null
+      return
+    }
+
+    if (loading || attemptedCode.current === code) {
+      return
+    }
+
+    attemptedCode.current = code
+    void verifyMFA(code)
+  }, [code, loading, verifyMFA])
 
   return (
     <main className="flex min-h-screen items-center justify-center p-6">
@@ -76,13 +91,11 @@ export default function MFAVerifyPage() {
           className="rounded border p-3"
         />
 
-        <button
-          onClick={verifyMFA}
-          disabled={loading || code.length !== 6}
-          className="rounded bg-black p-3 text-white disabled:opacity-50"
-        >
-          {loading ? 'Verificando...' : 'Verificar 2FA'}
-        </button>
+        <p className="text-sm text-zinc-500">
+          {loading
+            ? 'Verificando código…'
+            : 'La verificación comenzará automáticamente al introducir los 6 dígitos.'}
+        </p>
 
         {message && <p>{message}</p>}
       </div>
