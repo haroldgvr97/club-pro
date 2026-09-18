@@ -16,7 +16,6 @@ type Props = {
   opponentId: number
   ourGoals: number
   opponentGoals: number
- location: string | null
   notes: string | null
   playedAt: string
   seasons: Option[]
@@ -38,7 +37,6 @@ export function EditMatchForm({
   opponentId,
   ourGoals,
   opponentGoals,
-  location,
   notes,
   playedAt,
   seasons,
@@ -121,21 +119,6 @@ export function EditMatchForm({
         required
         className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2"
       />
-
-	<select
-  name="location"
-  defaultValue={
-    location === 'home' || location === 'away'
-      ? location
-      : ''
-  }
-  className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2"
->
-
-        <option value="">Ubicación</option>
-        <option value="home">Local</option>
-        <option value="away">Visitante</option>
-      </select>
 
       <button
         type="submit"

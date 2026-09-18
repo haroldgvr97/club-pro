@@ -44,7 +44,7 @@ export default async function MatchesPage() {
           <div className="mb-8">
             <h1 className="text-3xl font-bold">Partidos</h1>
             <p className="mt-1 text-sm text-zinc-400">
-              Historial y registro de partidos
+              Anota el rival y el manager al empezar. Guarda el resultado al terminar.
             </p>
           </div>
 
@@ -57,6 +57,7 @@ export default async function MatchesPage() {
               seasons={seasonOptions}
               managers={activeManagerOptions}
               opponents={opponentOptions}
+              matches={matches}
             />
           </section>
 
@@ -113,6 +114,9 @@ export default async function MatchesPage() {
                         </div>
                       </div>
 
+                      <details className="rounded-lg border border-zinc-800 p-3">
+                        <summary className="cursor-pointer text-sm text-zinc-400">Editar o eliminar partido</summary>
+                        <div className="mt-4 space-y-3">
                       <EditMatchForm
                         matchId={match.id}
                         seasonId={match.season_id}
@@ -120,14 +124,15 @@ export default async function MatchesPage() {
                         opponentId={match.opponent_id}
                         ourGoals={match.our_goals}
                         opponentGoals={match.opponent_goals}
-                        location={match.location}
                         notes={match.notes}
                         playedAt={match.played_at}
                         seasons={seasonOptions}
                         managers={managerOptions}
                         opponents={opponentOptions}
                       />
-			<DeleteMatchButton matchId={match.id} />
+                          <DeleteMatchButton matchId={match.id} />
+                        </div>
+                      </details>
                     </div>
                   )
                 })}

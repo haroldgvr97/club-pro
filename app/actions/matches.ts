@@ -2,11 +2,14 @@
 
 import { revalidatePath } from 'next/cache'
 import { requireAdmin } from '@/lib/auth/require-admin'
+import { normalizeOpponentName } from '@/lib/matches/opponents'
 
 export async function createMatch(formData: FormData) {
   const seasonId = Number(formData.get('season_id'))
   const managerId = Number(formData.get('manager_id'))
-  const opponentId = Number(formData.get('opponent_id'))
+  let opponentId = Number(formData.get('opponent_id'))
+  const rawOpponentName = formData.get('opponent_name')
+  const opponentName = typeof rawOpponentName === 'string' ? rawOpponentName.trim().replace(/\s+/g, ' ') : ''
   const ourGoals = Number(formData.get('our_goals'))
   const opponentGoals = Number(formData.get('opponent_goals'))
 
@@ -22,15 +25,15 @@ export async function createMatch(formData: FormData) {
     return { error: 'Manager inválido.' }
   }
 
-  if (!Number.isInteger(opponentId) || opponentId <= 0) {
+  if (!opponentName && (!Number.isInteger(opponentId) || opponentId <= 0)) {
     return { error: 'Rival inválido.' }
   }
 
-  if (!Number.isInteger(ourGoals) || ourGoals < 0) {
+  if (!String(formData.get('our_goals') ?? '').trim() || !Number.isInteger(ourGoals) || ourGoals < 0) {
     return { error: 'Nuestros goles son inválidos.' }
   }
 
-  if (!Number.isInteger(opponentGoals) || opponentGoals < 0) {
+  if (!String(formData.get('opponent_goals') ?? '').trim() || !Number.isInteger(opponentGoals) || opponentGoals < 0) {
     return { error: 'Los goles del rival son inválidos.' }
   }
 
@@ -49,20 +52,45 @@ export async function createMatch(formData: FormData) {
   const cleanNotes =
     typeof notes === 'string' && notes.trim() ? notes.trim() : null
 
-let cleanPlayedAt = new Date().toISOString()
+  let cleanPlayedAt = new Date().toISOString()
 
-if (typeof playedAt === 'string' && playedAt) {
-  const parsedPlayedAt = new Date(playedAt)
-
-  if (Number.isNaN(parsedPlayedAt.getTime())) {
-    return { error: 'Fecha del partido inválida.' }
+  if (typeof playedAt === 'string' && playedAt) {
+    const parsedPlayedAt = new Date(playedAt)
+    if (Number.isNaN(parsedPlayedAt.getTime())) {
+      return { error: 'Fecha del partido inválida.' }
+    }
+    cleanPlayedAt = parsedPlayedAt.toISOString()
   }
-
-  cleanPlayedAt = parsedPlayedAt.toISOString()
-}
 
   try {
     const { supabase } = await requireAdmin()
+
+    if (opponentName) {
+      const { data: opponents, error: lookupError } = await supabase
+        .from('opponents').select('id, name')
+      if (lookupError) return { error: 'No se pudo buscar el equipo rival.' }
+
+      const existing = opponents?.find((opponent) =>
+        normalizeOpponentName(opponent.name) === normalizeOpponentName(opponentName)
+      )
+      if (existing) {
+        opponentId = existing.id
+      } else {
+        const { data: created, error: opponentError } = await supabase
+          .from('opponents').insert({ name: opponentName }).select('id').single()
+        if (opponentError?.code === '23505') {
+          // Another request may have just created this team.
+          const { data: concurrent, error: concurrentError } = await supabase
+            .from('opponents').select('id').eq('name', opponentName).single()
+          if (concurrentError || !concurrent) return { error: 'No se pudo registrar el equipo rival.' }
+          opponentId = concurrent.id
+        } else if (opponentError || !created) {
+          return { error: 'No se pudo registrar el equipo rival.' }
+        } else {
+          opponentId = created.id
+        }
+      }
+    }
 
     const { error } = await supabase
       .from('matches')
@@ -89,6 +117,8 @@ if (typeof playedAt === 'string' && playedAt) {
     }
 
     revalidatePath('/')
+    revalidatePath('/matches')
+    revalidatePath('/opponents')
 
     return { success: true }
   } catch {
@@ -122,6 +152,8 @@ export async function deleteMatch(formData: FormData) {
     }
 
     revalidatePath('/')
+    revalidatePath('/matches')
+    revalidatePath('/opponents')
 
     return { success: true }
   } catch {
@@ -156,11 +188,11 @@ export async function updateMatch(formData: FormData) {
     return { error: 'Rival inválido.' }
   }
 
-  if (!Number.isInteger(ourGoals) || ourGoals < 0) {
+  if (!String(formData.get('our_goals') ?? '').trim() || !Number.isInteger(ourGoals) || ourGoals < 0) {
     return { error: 'Nuestros goles son inválidos.' }
   }
 
-  if (!Number.isInteger(opponentGoals) || opponentGoals < 0) {
+  if (!String(formData.get('opponent_goals') ?? '').trim() || !Number.isInteger(opponentGoals) || opponentGoals < 0) {
     return { error: 'Los goles del rival son inválidos.' }
   }
 
@@ -202,7 +234,7 @@ export async function updateMatch(formData: FormData) {
         opponent_id: opponentId,
         our_goals: ourGoals,
         opponent_goals: opponentGoals,
-        location: cleanLocation,
+        ...(formData.has('location') ? { location: cleanLocation } : {}),
         notes: cleanNotes,
         played_at: cleanPlayedAt,
       })
@@ -227,6 +259,7 @@ export async function updateMatch(formData: FormData) {
 
     revalidatePath('/')
     revalidatePath('/matches')
+    revalidatePath('/opponents')
 
     return { success: true }
   } catch {
