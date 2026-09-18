@@ -8,7 +8,7 @@ export async function updateUserPermissions(formData: FormData) {
   const userId = formData.get('user_id')
   if (typeof userId !== 'string' || !userId) return { error: 'Usuario inválido.' }
   try {
-    await requireAdmin()
+    const { supabase } = await requireAdmin()
     const permissions = {
       can_manage_matches: formData.get('can_manage_matches') === 'on',
       can_edit_other_player_stats: formData.get('can_edit_other_player_stats') === 'on',
@@ -16,7 +16,7 @@ export async function updateUserPermissions(formData: FormData) {
       can_send_invites: formData.get('can_send_invites') === 'on',
       can_manage_seasons: formData.get('can_manage_seasons') === 'on',
     }
-    const { error } = await createAdminClient().from('profiles').update(permissions).eq('id', userId)
+    const { error } = await supabase.from('profiles').update(permissions).eq('id', userId)
     if (error) return { error: 'No se pudieron actualizar los permisos.' }
     revalidatePath('/admin/users')
     return { success: true }
@@ -34,9 +34,8 @@ export async function updateUserName(formData: FormData) {
   }
 
   try {
-    await requireAdmin()
-    const admin = createAdminClient()
-    const { error: managerError } = await admin
+    const { supabase } = await requireAdmin()
+    const { error: managerError } = await supabase
       .from('managers')
       .update({ name: cleanName })
       .eq('profile_id', userId)
@@ -44,7 +43,7 @@ export async function updateUserName(formData: FormData) {
       if (managerError.code === '23505') return { error: 'Ya existe un Manager/Jugador con ese nombre.' }
       return { error: 'No se pudo actualizar el Manager/Jugador.' }
     }
-    const { error } = await admin
+    const { error } = await supabase
       .from('profiles')
       .update({ display_name: cleanName })
       .eq('id', userId)
