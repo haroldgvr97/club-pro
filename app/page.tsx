@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { logout } from './logout-action'
 
 import { AppSidebar } from '@/components/app-sidebar'
@@ -47,7 +48,7 @@ export default async function Home() {
 
       <main className="flex-1">
         <div className="mx-auto max-w-7xl px-6 py-8">
-          <div className="mb-8 flex items-center justify-between">
+          <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
             <div>
               <DashboardGreeting name={displayName} />
               <p className="mt-1 text-sm text-zinc-400">
@@ -55,14 +56,23 @@ export default async function Home() {
               </p>
             </div>
 
-            <form action={logout}>
-              <button
-                type="submit"
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/teams"
+                aria-label="Regresar a equipos"
                 className="rounded-lg border border-zinc-700 px-4 py-2 text-sm hover:bg-zinc-900"
               >
-                Cerrar sesión
-              </button>
-            </form>
+                ← Equipos
+              </Link>
+              <form action={logout}>
+                <button
+                  type="submit"
+                  className="rounded-lg border border-zinc-700 px-4 py-2 text-sm hover:bg-zinc-900"
+                >
+                  Cerrar sesión
+                </button>
+              </form>
+            </div>
           </div>
 
           <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
