@@ -227,7 +227,7 @@ export type Database = {
         Relationships: []
       }
       team_members: {
-        Row: { profile_id: string; team_id: number }
+        Row: { profile_id: string; team_id: number; can_manage_permissions: boolean; can_manage_matches: boolean; can_edit_other_player_stats: boolean; can_view_other_manager_stats: boolean; can_send_invites: boolean; can_manage_seasons: boolean }
         Insert: { profile_id: string; team_id: number }
         Update: { profile_id?: string; team_id?: number }
         Relationships: []
@@ -244,6 +244,7 @@ export type Database = {
     }
     Functions: {
       activate_season: { Args: { p_season_id: number }; Returns: undefined }
+      set_team_permissions: { Args: { p_team_id: number; p_user_id: string; p_permissions: Json }; Returns: undefined }
       create_managed_team: { Args: { p_name: string }; Returns: number }
       delete_managed_team: { Args: { p_team_id: number }; Returns: undefined }
       get_my_team_id: { Args: never; Returns: number | null }

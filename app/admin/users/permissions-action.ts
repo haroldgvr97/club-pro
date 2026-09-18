@@ -3,20 +3,25 @@
 import { revalidatePath } from 'next/cache'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { createAdminClient } from '@/utils/supabase/admin'
+import { getAuthenticatedProfile } from '@/lib/auth/require-permission'
+import { getActiveTeamId } from '@/lib/teams/active-team'
 
 export async function updateUserPermissions(formData: FormData) {
   const userId = formData.get('user_id')
   if (typeof userId !== 'string' || !userId) return { error: 'Usuario inválido.' }
   try {
-    const { supabase } = await requireAdmin()
+    const { supabase, profile } = await getAuthenticatedProfile()
+    if (profile.role !== 'admin' && !profile.can_manage_permissions) return { error: 'No autorizado.' }
+    const teamId = await getActiveTeamId()
     const permissions = {
       can_manage_matches: formData.get('can_manage_matches') === 'on',
       can_edit_other_player_stats: formData.get('can_edit_other_player_stats') === 'on',
       can_view_other_manager_stats: formData.get('can_view_other_manager_stats') === 'on',
       can_send_invites: formData.get('can_send_invites') === 'on',
       can_manage_seasons: formData.get('can_manage_seasons') === 'on',
+      ...(profile.role === 'admin' ? { can_manage_permissions: formData.get('can_manage_permissions') === 'on' } : {}),
     }
-    const { error } = await supabase.from('profiles').update(permissions).eq('id', userId)
+    const { error } = await supabase.rpc('set_team_permissions', { p_team_id: teamId, p_user_id: userId, p_permissions: permissions })
     if (error) return { error: 'No se pudieron actualizar los permisos.' }
     revalidatePath('/admin/users')
     return { success: true }
