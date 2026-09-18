@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { requirePermission } from '@/lib/auth/require-permission'
 import { getSimilarOpponentNames, normalizeOpponentName } from '@/lib/matches/opponents'
 import { createAdminClient } from '@/utils/supabase/admin'
+import { getActiveTeamId } from '@/lib/teams/active-team'
 
 export async function createMatch(formData: FormData) {
   const seasonId = Number(formData.get('season_id'))
@@ -65,11 +66,12 @@ export async function createMatch(formData: FormData) {
 
   try {
     await requirePermission('can_manage_matches')
+    const teamId = await getActiveTeamId()
     const supabase = createAdminClient()
 
     if (opponentName) {
       const { data: opponents, error: lookupError } = await supabase
-        .from('opponents').select('id, name')
+        .from('opponents').select('id, name').eq('team_id', teamId)
       if (lookupError) return { error: 'No se pudo buscar el equipo rival.' }
 
       const existing = opponents?.find((opponent) =>
@@ -86,7 +88,7 @@ export async function createMatch(formData: FormData) {
           return { error: `Ya existe un rival similar: ${similar[0]}. Selecciónalo para evitar duplicados.` }
         }
         const { data: created, error: opponentError } = await supabase
-          .from('opponents').insert({ name: opponentName }).select('id').single()
+          .from('opponents').insert({ name: opponentName, team_id: teamId }).select('id').single()
         if (opponentError?.code === '23505') {
           // Another request may have just created this team.
           const { data: concurrent, error: concurrentError } = await supabase
@@ -105,6 +107,7 @@ export async function createMatch(formData: FormData) {
       .from('matches')
       .insert({
         season_id: seasonId,
+        team_id: teamId,
         manager_id: managerId,
         opponent_id: opponentId,
         our_goals: ourGoals,
@@ -144,12 +147,14 @@ export async function deleteMatch(formData: FormData) {
 
   try {
     await requirePermission('can_manage_matches')
+    const teamId = await getActiveTeamId()
     const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('matches')
       .delete()
       .eq('id', matchId)
+      .eq('team_id', teamId)
       .select('id')
       .maybeSingle()
 
@@ -235,6 +240,7 @@ export async function updateMatch(formData: FormData) {
 
   try {
     await requirePermission('can_manage_matches')
+    const teamId = await getActiveTeamId()
     const supabase = createAdminClient()
 
     const { data, error } = await supabase
@@ -250,6 +256,7 @@ export async function updateMatch(formData: FormData) {
         played_at: cleanPlayedAt,
       })
       .eq('id', matchId)
+      .eq('team_id', teamId)
       .select('id')
       .maybeSingle()
 

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { requireAdmin } from '@/lib/auth/require-admin'
+import { getActiveTeamId } from '@/lib/teams/active-team'
 
 export async function createOpponent(formData: FormData) {
   const name = formData.get('name')
@@ -12,11 +13,13 @@ export async function createOpponent(formData: FormData) {
 
   try {
     const { supabase } = await requireAdmin()
+    const teamId = await getActiveTeamId()
 
     const { error } = await supabase
       .from('opponents')
       .insert({
         name: name.trim(),
+        team_id: teamId,
       })
 
     if (error) {
@@ -116,4 +119,3 @@ export async function deleteOpponent(formData: FormData) {
     return { error: 'No autorizado.' }
   }
 }
-

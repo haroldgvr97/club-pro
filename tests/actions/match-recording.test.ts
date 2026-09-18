@@ -2,10 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createMatch } from '@/app/actions/matches'
 import { requirePermission } from '@/lib/auth/require-permission'
 import { createAdminClient } from '@/utils/supabase/admin'
+import { getActiveTeamId } from '@/lib/teams/active-team'
 import { revalidatePath } from 'next/cache'
 
 vi.mock('@/lib/auth/require-permission', () => ({ requirePermission: vi.fn() }))
 vi.mock('@/utils/supabase/admin', () => ({ createAdminClient: vi.fn() }))
+vi.mock('@/lib/teams/active-team', () => ({ getActiveTeamId: vi.fn() }))
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 
 function form() {
@@ -19,8 +21,9 @@ function database(existing: { id: number; name: string }[] = []) {
   const createTeam = vi.fn().mockReturnValue({ select: () => ({ single: async () => ({ data: { id: 8 }, error: null }) }) })
   const client = { from: vi.fn((table: string) => table === 'matches'
     ? { insert: saveMatch }
-    : { select: async () => ({ data: existing, error: null }), insert: createTeam }) }
+    : { select: () => ({ eq: async () => ({ data: existing, error: null }) }), insert: createTeam }) }
   vi.mocked(requirePermission).mockResolvedValue({} as Awaited<ReturnType<typeof requirePermission>>)
+  vi.mocked(getActiveTeamId).mockResolvedValue(1)
   vi.mocked(createAdminClient).mockReturnValue(client as unknown as ReturnType<typeof createAdminClient>)
   return { saveMatch, createTeam }
 }
@@ -37,7 +40,7 @@ describe('record a match by team name', () => {
   it('creates a new team and associates the result with it', async () => {
     const { saveMatch, createTeam } = database()
     expect(await createMatch(form())).toEqual({ success: true })
-    expect(createTeam).toHaveBeenCalledWith({ name: 'REAL fc' })
+    expect(createTeam).toHaveBeenCalledWith({ name: 'REAL fc', team_id: 1 })
     expect(saveMatch).toHaveBeenCalledWith(expect.objectContaining({ opponent_id: 8 }))
   })
   it('does not silently record an unfinished match as 0–0', async () => {

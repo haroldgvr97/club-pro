@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { requirePermission } from '@/lib/auth/require-permission'
 import { createAdminClient } from '@/utils/supabase/admin'
+import { getActiveTeamId } from '@/lib/teams/active-team'
 
 export async function createSeason(formData: FormData) {
   const name = formData.get('name')
@@ -31,12 +32,14 @@ export async function createSeason(formData: FormData) {
 
   try {
     await requirePermission('can_manage_seasons')
+    const teamId = await getActiveTeamId()
     const supabase = createAdminClient()
 
     const { error } = await supabase
       .from('seasons')
       .insert({
         name: name.trim(),
+        team_id: teamId,
         start_date: cleanStartDate,
         end_date: cleanEndDate,
       })
@@ -95,12 +98,14 @@ export async function deleteSeason(formData: FormData) {
 
   try {
     await requirePermission('can_manage_seasons')
+    const teamId = await getActiveTeamId()
     const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('seasons')
       .delete()
       .eq('id', seasonId)
+      .eq('team_id', teamId)
       .select('id')
       .maybeSingle()
 
@@ -159,6 +164,7 @@ export async function updateSeason(formData: FormData) {
 
   try {
     await requirePermission('can_manage_seasons')
+    const teamId = await getActiveTeamId()
     const supabase = createAdminClient()
 
     const { data, error } = await supabase
@@ -169,6 +175,7 @@ export async function updateSeason(formData: FormData) {
         end_date: cleanEndDate,
       })
       .eq('id', seasonId)
+      .eq('team_id', teamId)
       .select('id')
       .maybeSingle()
 

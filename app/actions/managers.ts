@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { getAuthenticatedProfile } from '@/lib/auth/require-permission'
 import { createAdminClient } from '@/utils/supabase/admin'
+import { getActiveTeamId } from '@/lib/teams/active-team'
 
 export async function createManager(formData: FormData) {
   const name = formData.get('name')
@@ -14,11 +15,13 @@ export async function createManager(formData: FormData) {
 
   try {
     const { supabase } = await requireAdmin()
+    const teamId = await getActiveTeamId()
 
     const { error } = await supabase
       .from('managers')
       .insert({
         name: name.trim(),
+        team_id: teamId,
       })
 
     if (error) {

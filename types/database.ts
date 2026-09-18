@@ -48,6 +48,7 @@ export type Database = {
           is_active: boolean
           name: string
           profile_id: string | null
+          team_id: number
         }
         Insert: {
           assists?: number
@@ -57,6 +58,7 @@ export type Database = {
           is_active?: boolean
           name: string
           profile_id?: string | null
+          team_id: number
         }
         Update: {
           assists?: number
@@ -66,16 +68,12 @@ export type Database = {
           is_active?: boolean
           name?: string
           profile_id?: string | null
+          team_id?: number
         }
         Relationships: []
       }
       matches: {
         Row: {
-          can_edit_other_player_stats: boolean
-          can_manage_matches: boolean
-          can_manage_seasons: boolean
-          can_send_invites: boolean
-          can_view_other_manager_stats: boolean
           created_at: string
           id: number
           location: string | null
@@ -86,13 +84,9 @@ export type Database = {
           our_goals: number
           played_at: string
           season_id: number
+          team_id: number
         }
         Insert: {
-          can_edit_other_player_stats?: boolean
-          can_manage_matches?: boolean
-          can_manage_seasons?: boolean
-          can_send_invites?: boolean
-          can_view_other_manager_stats?: boolean
           created_at?: string
           id?: number
           location?: string | null
@@ -103,13 +97,9 @@ export type Database = {
           our_goals: number
           played_at?: string
           season_id: number
+          team_id: number
         }
         Update: {
-          can_edit_other_player_stats?: boolean
-          can_manage_matches?: boolean
-          can_manage_seasons?: boolean
-          can_send_invites?: boolean
-          can_view_other_manager_stats?: boolean
           created_at?: string
           id?: number
           location?: string | null
@@ -120,6 +110,7 @@ export type Database = {
           our_goals?: number
           played_at?: string
           season_id?: number
+          team_id?: number
         }
         Relationships: [
           {
@@ -150,16 +141,19 @@ export type Database = {
           created_at: string
           id: number
           name: string
+          team_id: number
         }
         Insert: {
           created_at?: string
           id?: number
           name: string
+          team_id: number
         }
         Update: {
           created_at?: string
           id?: number
           name?: string
+          team_id?: number
         }
         Relationships: []
       }
@@ -210,6 +204,7 @@ export type Database = {
           is_active: boolean
           name: string
           start_date: string | null
+          team_id: number
         }
         Insert: {
           created_at?: string
@@ -218,6 +213,7 @@ export type Database = {
           is_active?: boolean
           name: string
           start_date?: string | null
+          team_id: number
         }
         Update: {
           created_at?: string
@@ -226,7 +222,20 @@ export type Database = {
           is_active?: boolean
           name?: string
           start_date?: string | null
+          team_id?: number
         }
+        Relationships: []
+      }
+      team_members: {
+        Row: { profile_id: string; team_id: number }
+        Insert: { profile_id: string; team_id: number }
+        Update: { profile_id?: string; team_id?: number }
+        Relationships: []
+      }
+      teams: {
+        Row: { created_at: string; id: number; name: string; owner_profile_id: string }
+        Insert: { created_at?: string; id?: number; name: string; owner_profile_id: string }
+        Update: { created_at?: string; id?: number; name?: string; owner_profile_id?: string }
         Relationships: []
       }
     }

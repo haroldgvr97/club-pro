@@ -1,7 +1,9 @@
 import { createClient } from '@/utils/supabase/server'
+import { getActiveTeamId } from '@/lib/teams/active-team'
 
 export async function getDashboardData() {
   const supabase = await createClient()
+  const teamId = await getActiveTeamId()
 
   const [
     seasonsResult,
@@ -12,18 +14,21 @@ export async function getDashboardData() {
     supabase
       .from('seasons')
       .select('*')
+      .eq('team_id', teamId)
       .order('is_active', { ascending: false })
       .order('start_date', { ascending: false }),
 
     supabase
       .from('managers')
       .select('*')
+      .eq('team_id', teamId)
       .order('is_active', { ascending: false })
       .order('name'),
 
     supabase
       .from('opponents')
       .select('*')
+      .eq('team_id', teamId)
       .order('name'),
 
     supabase
@@ -43,6 +48,7 @@ export async function getDashboardData() {
           name
         )
       `)
+      .eq('team_id', teamId)
       .order('played_at', { ascending: false }),
   ])
 
