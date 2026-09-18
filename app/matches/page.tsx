@@ -1,7 +1,9 @@
 import { AppSidebar } from '@/components/app-sidebar'
 import { CreateMatchForm } from '@/components/create-match-form'
+import { EditMatchForm } from '@/components/edit-match-form'
 import { getDashboardData } from '@/lib/data/get-dashboard-data'
 import { getMatchResult } from '@/lib/matches/result'
+import { DeleteMatchButton } from '@/components/delete-match-button'
 
 export default async function MatchesPage() {
   const {
@@ -10,6 +12,28 @@ export default async function MatchesPage() {
     managers,
     opponents,
   } = await getDashboardData()
+
+  const seasonOptions = seasons.map((season) => ({
+    id: season.id,
+    name: season.name,
+  }))
+
+  const managerOptions = managers.map((manager) => ({
+    id: manager.id,
+    name: manager.name,
+  }))
+
+  const activeManagerOptions = managers
+    .filter((manager) => manager.is_active)
+    .map((manager) => ({
+      id: manager.id,
+      name: manager.name,
+    }))
+
+  const opponentOptions = opponents.map((opponent) => ({
+    id: opponent.id,
+    name: opponent.name,
+  }))
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white md:flex">
@@ -30,20 +54,9 @@ export default async function MatchesPage() {
             </h2>
 
             <CreateMatchForm
-              seasons={seasons.map((season) => ({
-                id: season.id,
-                name: season.name,
-              }))}
-              managers={managers
-                .filter((manager) => manager.is_active)
-                .map((manager) => ({
-                  id: manager.id,
-                  name: manager.name,
-                }))}
-              opponents={opponents.map((opponent) => ({
-                id: opponent.id,
-                name: opponent.name,
-              }))}
+              seasons={seasonOptions}
+              managers={activeManagerOptions}
+              opponents={opponentOptions}
             />
           </section>
 
@@ -53,61 +66,71 @@ export default async function MatchesPage() {
                 Todavía no hay partidos registrados.
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead className="border-b border-zinc-800 text-zinc-400">
-                    <tr>
-                      <th className="px-5 py-4 font-medium">Fecha</th>
-                      <th className="px-5 py-4 font-medium">Rival</th>
-                      <th className="px-5 py-4 font-medium">Manager</th>
-                      <th className="px-5 py-4 font-medium">Resultado</th>
-                      <th className="px-5 py-4 font-medium">Marcador</th>
-                      <th className="px-5 py-4 font-medium">Temporada</th>
-                    </tr>
-                  </thead>
+              <div className="divide-y divide-zinc-800">
+                {matches.map((match) => {
+                  const result = getMatchResult(
+                    match.our_goals,
+                    match.opponent_goals
+                  )
 
-                  <tbody className="divide-y divide-zinc-800">
-                    {matches.map((match) => {
-                      const result = getMatchResult(
-                        match.our_goals,
-                        match.opponent_goals
-                      )
+                  const resultLabel =
+                    result === 'win'
+                      ? 'Victoria'
+                      : result === 'draw'
+                        ? 'Empate'
+                        : 'Derrota'
 
-                      const resultLabel =
-                        result === 'win'
-                          ? 'Victoria'
-                          : result === 'draw'
-                            ? 'Empate'
-                            : 'Derrota'
+                  return (
+                    <div
+                      key={match.id}
+                      className="flex flex-col gap-5 px-5 py-5"
+                    >
+                      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div>
+                          <p className="text-lg font-semibold">
+                            vs {match.opponents?.name ?? 'Rival'}
+                          </p>
 
-                      return (
-                        <tr key={match.id}>
-                          <td className="px-5 py-4 text-zinc-400">
-                            {new Date(match.played_at).toLocaleDateString('es-ES')}
-                          </td>
-
-                          <td className="px-5 py-4 font-medium">
-                            {match.opponents?.name ?? 'Rival'}
-                          </td>
-
-                          <td className="px-5 py-4 text-zinc-300">
-                            {match.managers?.name ?? 'Sin manager'}
-                          </td>
-
-                          <td className="px-5 py-4">{resultLabel}</td>
-
-                          <td className="px-5 py-4 font-bold">
-                            {match.our_goals} - {match.opponent_goals}
-                          </td>
-
-                          <td className="px-5 py-4 text-zinc-400">
+                          <p className="text-sm text-zinc-400">
+                            Manager: {match.managers?.name ?? 'Sin manager'}
+                            {' · '}
                             {match.seasons?.name ?? 'Sin temporada'}
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
+                          </p>
+
+                          <p className="mt-1 text-xs text-zinc-500">
+                            {new Date(match.played_at).toLocaleString('es-ES')}
+                          </p>
+                        </div>
+
+                        <div className="text-left md:text-right">
+                          <p className="text-2xl font-bold">
+                            {match.our_goals} - {match.opponent_goals}
+                          </p>
+
+                          <p className="text-sm text-zinc-400">
+                            {resultLabel}
+                          </p>
+                        </div>
+                      </div>
+
+                      <EditMatchForm
+                        matchId={match.id}
+                        seasonId={match.season_id}
+                        managerId={match.manager_id}
+                        opponentId={match.opponent_id}
+                        ourGoals={match.our_goals}
+                        opponentGoals={match.opponent_goals}
+                        location={match.location}
+                        notes={match.notes}
+                        playedAt={match.played_at}
+                        seasons={seasonOptions}
+                        managers={managerOptions}
+                        opponents={opponentOptions}
+                      />
+			<DeleteMatchButton matchId={match.id} />
+                    </div>
+                  )
+                })}
               </div>
             )}
           </section>

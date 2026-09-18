@@ -1,6 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { createMatch } from '@/app/actions/matches'
-
+	import { describe, expect, it } from 'vitest'
+	import { createMatch, updateMatch } from '@/app/actions/matches'
 describe('createMatch validation', () => {
   it('rejects invalid season', async () => {
     const formData = new FormData()
@@ -113,5 +112,41 @@ it('rejects invalid played_at', async () => {
 
   expect(result).toEqual({
     error: 'Fecha del partido inválida.',
+  })
+})
+describe('updateMatch validation', () => {
+  it('rejects invalid match id', async () => {
+    const formData = new FormData()
+
+    formData.set('match_id', '0')
+    formData.set('season_id', '1')
+    formData.set('manager_id', '1')
+    formData.set('opponent_id', '1')
+    formData.set('our_goals', '1')
+    formData.set('opponent_goals', '0')
+
+    const result = await updateMatch(formData)
+
+    expect(result).toEqual({
+      error: 'Partido inválido.',
+    })
+  })
+
+  it('rejects invalid played_at', async () => {
+    const formData = new FormData()
+
+    formData.set('match_id', '1')
+    formData.set('season_id', '1')
+    formData.set('manager_id', '1')
+    formData.set('opponent_id', '1')
+    formData.set('our_goals', '1')
+    formData.set('opponent_goals', '0')
+    formData.set('played_at', 'not-a-date')
+
+    const result = await updateMatch(formData)
+
+    expect(result).toEqual({
+      error: 'Fecha del partido inválida.',
+    })
   })
 })
