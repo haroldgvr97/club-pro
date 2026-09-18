@@ -13,20 +13,13 @@ export default async function AdminUsersPage() {
         .select('id, email, display_name, role, can_manage_matches, can_edit_other_player_stats, can_view_other_manager_stats, can_send_invites, can_manage_seasons')
         .order('created_at')).data ?? []
     : []
-  const orphanManagers = isAdmin
-    ? (await createAdminClient()
-        .from('managers')
-        .select('id, name')
-        .is('profile_id', null)
-        .order('name')).data ?? []
-    : []
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white md:flex">
       <AppSidebar />
       <main className="flex-1"><div className="mx-auto max-w-7xl px-6 py-8">
         <div className="mb-8"><h1 className="text-3xl font-bold">Usuarios</h1><p className="mt-1 text-sm text-zinc-400">Invitaciones, cuentas y permisos</p></div>
-        <UserManagement profiles={profiles} orphanManagers={orphanManagers} canManagePermissions={isAdmin} canSendInvites={canSendInvites} />
+        <UserManagement profiles={profiles} canManagePermissions={isAdmin} canSendInvites={canSendInvites} />
       </div></main>
     </div>
   )

@@ -2,28 +2,22 @@
 
 import { useState } from 'react'
 import { inviteUserV2 } from '@/app/admin/users/invite-action'
-import { deleteOrphanManager, deleteUser, updateUserName, updateUserPermissions } from '@/app/admin/users/permissions-action'
+import { deleteUser, updateUserName, updateUserPermissions } from '@/app/admin/users/permissions-action'
 
 type Profile = { id: string; email: string; display_name: string | null; role: string; can_manage_matches: boolean; can_edit_other_player_stats: boolean; can_view_other_manager_stats: boolean; can_send_invites: boolean; can_manage_seasons: boolean }
 const permissions = [['can_manage_matches', 'Manejo de Partidos'], ['can_edit_other_player_stats', 'Editar Estadísticas de Otros Managers'], ['can_view_other_manager_stats', 'Ver Estadísticas de Otros Managers'], ['can_send_invites', 'Enviar Invitación'], ['can_manage_seasons', 'Agregar Temporadas']] as const
 
-export function UserManagement({ profiles, orphanManagers, canManagePermissions, canSendInvites }: { profiles: Profile[]; orphanManagers: { id: number; name: string }[]; canManagePermissions: boolean; canSendInvites: boolean }) {
+export function UserManagement({ profiles, canManagePermissions, canSendInvites }: { profiles: Profile[]; canManagePermissions: boolean; canSendInvites: boolean }) {
   const [inviteMessage, setInviteMessage] = useState('')
   const [inviting, setInviting] = useState(false)
   async function invite(formData: FormData) { setInviting(true); setInviteMessage(''); const result = await inviteUserV2(formData); setInviteMessage(result.error ?? 'Invitación enviada correctamente.'); setInviting(false) }
 
   return <>
     {canSendInvites ? <section className="mb-8 max-w-xl rounded-xl border border-zinc-800 bg-zinc-900 p-5"><h2 className="mb-4 text-lg font-semibold">Invitar Usuario</h2><form action={invite} className="flex flex-col gap-4"><input name="email" type="email" placeholder="Correo electrónico" required className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2" /><button type="submit" disabled={inviting} className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-black disabled:opacity-50">{inviting ? 'Enviando...' : 'Enviar Invitación'}</button>{inviteMessage ? <p className="text-sm text-zinc-300">{inviteMessage}</p> : null}</form></section> : null}
-    {canManagePermissions ? <><section className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900"><div className="border-b border-zinc-800 px-5 py-4"><h2 className="text-lg font-semibold">Usuarios y Permisos</h2><p className="mt-1 text-sm text-zinc-400">Cada cuenta se convierte en Manager/Jugador al completar su invitación.</p></div><div className="divide-y divide-zinc-800">{profiles.map((profile) => <UserPermissionRow key={profile.id} profile={profile} />)}</div></section><OrphanManagers managers={orphanManagers} /></> : <p className="text-sm text-zinc-400">No tienes permiso para administrar usuarios.</p>}
+    {canManagePermissions ? <section className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900"><div className="border-b border-zinc-800 px-5 py-4"><h2 className="text-lg font-semibold">Usuarios y Permisos</h2><p className="mt-1 text-sm text-zinc-400">Cada cuenta se convierte en Manager/Jugador al completar su invitación.</p></div><div className="divide-y divide-zinc-800">{profiles.map((profile) => <UserPermissionRow key={profile.id} profile={profile} />)}</div></section> : <p className="text-sm text-zinc-400">No tienes permiso para administrar usuarios.</p>}
   </>
 }
 
-function OrphanManagers({ managers }: { managers: { id: number; name: string }[] }) {
-  const [message, setMessage] = useState('')
-  const [deletingId, setDeletingId] = useState<number | null>(null)
-  async function remove(manager: { id: number; name: string }) { if (!window.confirm(`¿Eliminar el Manager ${manager.name}?`)) return; setDeletingId(manager.id); setMessage(''); const data = new FormData(); data.set('manager_id', String(manager.id)); const result = await deleteOrphanManager(data); setMessage(result.error ?? 'Manager eliminado.'); setDeletingId(null) }
-  return <section className="mt-8 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900"><div className="border-b border-zinc-800 px-5 py-4"><h2 className="text-lg font-semibold">Managers sin Usuario</h2><p className="mt-1 text-sm text-zinc-400">Cuentas eliminadas que conservan un Manager para proteger su historial.</p></div>{managers.length ? <div className="divide-y divide-zinc-800">{managers.map((manager) => <div key={manager.id} className="flex items-center justify-between gap-4 p-5"><p className="font-medium">{manager.name}</p><button type="button" onClick={() => remove(manager)} disabled={deletingId === manager.id} className="rounded-lg border border-red-900 px-3 py-2 text-sm text-red-400 hover:bg-red-950 disabled:opacity-50">{deletingId === manager.id ? 'Eliminando...' : 'Eliminar Manager'}</button></div>)}</div> : <p className="px-5 py-6 text-sm text-zinc-400">No hay Managers sin Usuario.</p>}{message ? <p className="px-5 pb-5 text-sm text-zinc-300">{message}</p> : null}</section>
-}
 
 function UserPermissionRow({ profile }: { profile: Profile }) {
   const [message, setMessage] = useState(''); const [saving, setSaving] = useState(false); const [editingName, setEditingName] = useState(false); const [deleting, setDeleting] = useState(false)
