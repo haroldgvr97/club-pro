@@ -25,9 +25,23 @@ describe('manager action validation', () => {
     const formData = new FormData()
     formData.set('manager_id', '0')
     formData.set('name', 'Harold')
+    formData.set('goals', '0')
+    formData.set('assists', '0')
 
     expect(await updateManager(formData)).toEqual({
       error: 'Manager inválido.',
+    })
+  })
+
+  it('rejects negative player goals when updating', async () => {
+    const formData = new FormData()
+    formData.set('manager_id', '1')
+    formData.set('name', 'Harold')
+    formData.set('goals', '-1')
+    formData.set('assists', '0')
+
+    expect(await updateManager(formData)).toEqual({
+      error: 'Los goles deben ser un número entero igual o mayor que cero.',
     })
   })
 

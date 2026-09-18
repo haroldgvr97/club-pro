@@ -37,6 +37,8 @@ export async function createManager(formData: FormData) {
 export async function updateManager(formData: FormData) {
   const managerId = Number(formData.get('manager_id'))
   const name = formData.get('name')
+  const goals = Number(formData.get('goals'))
+  const assists = Number(formData.get('assists'))
 
   if (!Number.isInteger(managerId) || managerId <= 0) {
     return { error: 'Manager inválido.' }
@@ -46,6 +48,14 @@ export async function updateManager(formData: FormData) {
     return { error: 'El nombre del manager es obligatorio.' }
   }
 
+  if (!Number.isInteger(goals) || goals < 0) {
+    return { error: 'Los goles deben ser un número entero igual o mayor que cero.' }
+  }
+
+  if (!Number.isInteger(assists) || assists < 0) {
+    return { error: 'Las asistencias deben ser un número entero igual o mayor que cero.' }
+  }
+
   try {
     const { supabase } = await requireAdmin()
 
@@ -53,6 +63,8 @@ export async function updateManager(formData: FormData) {
       .from('managers')
       .update({
         name: name.trim(),
+        goals,
+        assists,
       })
       .eq('id', managerId)
       .select('id')
@@ -71,6 +83,7 @@ export async function updateManager(formData: FormData) {
     }
 
     revalidatePath('/')
+    revalidatePath('/managers')
 
     return { success: true }
   } catch {

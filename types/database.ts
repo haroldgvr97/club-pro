@@ -41,19 +41,25 @@ export type Database = {
     Tables: {
       managers: {
         Row: {
+          assists: number
           created_at: string
+          goals: number
           id: number
           is_active: boolean
           name: string
         }
         Insert: {
+          assists?: number
           created_at?: string
+          goals?: number
           id?: number
           is_active?: boolean
           name: string
         }
         Update: {
+          assists?: number
           created_at?: string
+          goals?: number
           id?: number
           is_active?: boolean
           name?: string
