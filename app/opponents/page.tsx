@@ -2,8 +2,32 @@ import { AppSidebar } from '@/components/app-sidebar'
 import { getDashboardData } from '@/lib/data/get-dashboard-data'
 import { getMatchResult } from '@/lib/matches/result'
 
-export default async function OpponentsPage() {
-  const { matches } = await getDashboardData()
+type SearchParams = Promise<{
+  rival?: string
+  manager?: string
+}>
+
+export default async function OpponentsPage({
+  searchParams,
+}: {
+  searchParams: SearchParams
+}) {
+  const [{ rival = '', manager = '' }, { matches, managers }] = await Promise.all([
+    searchParams,
+    getDashboardData(),
+  ])
+
+  const normalizedRival = rival.trim().toLocaleLowerCase('es')
+  const managerId = Number(manager)
+  const filteredMatches = matches.filter((match) => {
+    const matchesRival =
+      !normalizedRival ||
+      (match.opponents?.name ?? '').toLocaleLowerCase('es').includes(normalizedRival)
+    const matchesManager =
+      !Number.isInteger(managerId) || managerId <= 0 || match.manager_id === managerId
+
+    return matchesRival && matchesManager
+  })
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white md:flex">
@@ -19,9 +43,56 @@ export default async function OpponentsPage() {
           </div>
 
           <section className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900">
+            <form className="grid gap-4 border-b border-zinc-800 p-5 sm:grid-cols-[1fr_1fr_auto_auto]">
+              <label className="text-sm text-zinc-300">
+                <span className="mb-1 block">Nombre del rival</span>
+                <input
+                  name="rival"
+                  type="search"
+                  defaultValue={rival}
+                  placeholder="Ej.: FC Barcelona"
+                  className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2"
+                />
+              </label>
+
+              <label className="text-sm text-zinc-300">
+                <span className="mb-1 block">Manager</span>
+                <select
+                  name="manager"
+                  defaultValue={manager}
+                  className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2"
+                >
+                  <option value="">Todos los managers</option>
+                  {managers.map((currentManager) => (
+                    <option key={currentManager.id} value={currentManager.id}>
+                      {currentManager.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <button
+                type="submit"
+                className="self-end rounded-lg bg-white px-4 py-2 text-sm font-medium text-black"
+              >
+                Filtrar
+              </button>
+
+              <a
+                href="/opponents"
+                className="self-end rounded-lg border border-zinc-700 px-4 py-2 text-center text-sm hover:bg-zinc-800"
+              >
+                Limpiar
+              </a>
+            </form>
+
             {matches.length === 0 ? (
               <div className="px-6 py-12 text-center text-sm text-zinc-400">
                 Todavía no hay partidos registrados. Los rivales aparecerán aquí cuando registres un partido.
+              </div>
+            ) : filteredMatches.length === 0 ? (
+              <div className="px-6 py-12 text-center text-sm text-zinc-400">
+                No hay partidos que coincidan con estos filtros.
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -36,7 +107,7 @@ export default async function OpponentsPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-800">
-                    {matches.map((match) => {
+                    {filteredMatches.map((match) => {
                       const result = getMatchResult(
                         match.our_goals,
                         match.opponent_goals
