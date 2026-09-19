@@ -1,0 +1,193 @@
+.dashboard {
+  padding: clamp(20px, 3vw, 32px);
+  border: 1px solid #27272a;
+  border-radius: 20px;
+  background: #111113;
+}
+
+.sectionBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 25px;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #27272a;
+}
+
+.tabs {
+  display: inline-flex;
+  padding: 5px;
+  gap: 4px;
+  border: 1px solid #27272a;
+  border-radius: 12px;
+  background: #09090b;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 18px;
+  border-radius: 8px;
+  color: #a1a1aa;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 180ms ease, color 180ms ease;
+}
+
+.tab:hover { color: #fff; }
+.activeTab, .activeTab:hover { background: #f4f4f5; color: #09090b; }
+.tabNumber { font-size: 10px; font-weight: 500; opacity: .5; }
+.sectionCount { color: #71717a; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.sectionTitle { font-size: clamp(23px, 2vw, 30px); font-weight: 650; letter-spacing: -.045em; line-height: 1.2; }
+.sectionDescription { margin-top: 8px; font-size: 13px; line-height: 1.7; color: #a1a1aa; }
+.pickerGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 28px; }
+
+.personCard {
+  min-width: 0;
+  padding: 24px;
+  overflow: hidden;
+  text-align: left;
+  border: 1px solid #2b2b2f;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #1c1c1f, #101012);
+  transition: border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+
+.personCard:hover { border-color: #3e6b5b; transform: translateY(-3px); box-shadow: 0 12px 24px #0003; }
+.playerCard:hover { border-color: #356875; }
+.personCardTop { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; }
+.avatar { display: inline-grid; flex: 0 0 auto; place-items: center; width: 52px; height: 52px; border: 1px solid #3e514a; border-radius: 15px; background: #1b2923; color: #6ee7b7; font-size: 17px; font-weight: 650; letter-spacing: -.04em; }
+.playerCard .avatar { border-color: #294951; background: #14252b; color: #67e8f9; }
+.cardArrow { color: #71717a; font-size: 19px; transition: color 180ms ease, transform 180ms ease; }
+.personCard:hover .cardArrow { color: #f4f4f5; transform: translate(2px, -2px); }
+.personRole { font-size: 9px; letter-spacing: .16em; text-transform: uppercase; color: #71717a; }
+.personName { overflow-wrap: anywhere; margin-top: 5px; font-size: 22px; line-height: 1.25; font-weight: 650; letter-spacing: -.035em; text-transform: uppercase; }
+.personFooter { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 22px; padding-top: 16px; border-top: 1px solid #ffffff0c; color: #a1a1aa; font-size: 11px; }
+.personFooter strong { font-weight: 600; }
+.backButton { margin-bottom: 26px; color: #a1a1aa; font-size: 12px; transition: color 180ms ease; }
+.backButton:hover { color: #fff; }
+.detailHero { display: flex; align-items: center; justify-content: space-between; gap: 28px; padding: 8px 0 25px; }
+.identity { display: flex; align-items: center; gap: 20px; min-width: 0; }
+.largeAvatar { width: 72px; height: 82px; font-size: 25px; border-radius: 18px 18px 27px 27px; }
+.detailName { margin-top: 7px; font-size: clamp(25px, 2.8vw, 38px); font-weight: 700; line-height: 1.1; letter-spacing: -.05em; text-transform: uppercase; overflow-wrap: anywhere; }
+.summaryGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.summaryCard { padding: 20px; border: 1px solid #28282c; border-radius: 12px; background: #171719; }
+.metricLabel { display: flex; justify-content: space-between; gap: 6px; color: #a1a1aa; font-size: 11px; line-height: 1.5; }
+.metricValue { margin-top: 13px; font-size: clamp(28px, 3vw, 38px); line-height: 1.15; font-weight: 650; letter-spacing: -.06em; font-variant-numeric: tabular-nums; }
+.matchToolbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin: 34px 0 18px; }
+.historyTitle { margin-top: 6px; color: #f4f4f5; font-size: 17px; line-height: 1.5; font-weight: 600; letter-spacing: -.025em; }
+.searchLabel { display: block; width: min(100%, 280px); color: #a1a1aa; font-size: 11px; }
+.tableWrap { overflow-x: auto; border: 1px solid #27272a; border-radius: 12px; }
+.tableWrap th { padding-top: 15px; padding-bottom: 15px; font-weight: 500; font-size: 10px; letter-spacing: .09em; }
+.tableWrap td { padding-top: 17px; padding-bottom: 17px; }
+.tableWrap tbody tr { transition: background 180ms ease; }
+.tableWrap tbody tr:hover { background: #ffffff03; }
+.resultBadge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border: 1px solid currentColor; border-radius: 6px; font-size: 10px; font-weight: 500; }
+.resultBadge > span { font-size: 5px; }
+.chart { display: flex; align-items: center; gap: 22px; padding-right: 12px; }
+.chartRing { display: grid; flex: 0 0 auto; width: 126px; height: 126px; place-items: center; border-radius: 50%; transform: rotate(-90deg); }
+.chartCenter { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 107px; height: 107px; border: 6px solid #111113; border-radius: 50%; background: #171719; transform: rotate(90deg); }
+.chartCenter strong { font-size: 28px; letter-spacing: -.06em; line-height: 1.1; }
+.chartCenter strong > span { font-size: 14px; margin-left: 2px; color: #71717a; }
+.chartCenter > span { color: #71717a; font-size: 9px; }
+.chartLegend { min-width: 104px; font-size: 11px; }
+.chartLegend p { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 6px 0; color: #a1a1aa; }
+.chartLegend p > span { display: inline-flex; align-items: center; gap: 8px; }
+.chartLegend i { width: 5px; height: 5px; border-radius: 1px; }
+.chartLegend strong { color: #f4f4f5; font-weight: 500; font-variant-numeric: tabular-nums; }
+.playerHero { padding-bottom: 30px; }
+.playerStatus { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 10px; color: #71717a; }
+.playerStatus::before { content: ''; height: 5px; width: 5px; background: currentColor; border-radius: 50%; }
+.activeStatus { color: #34d399; }
+.playerForm { padding: 25px; border: 1px solid #27272a; border-radius: 15px; background: #0b0b0d; }
+.playerFormHeading { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; margin-bottom: 24px; }
+.playerMetrics { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.playerMetric { display: block; min-width: 0; padding: 20px 16px; background: #141417; border: 1px solid #27272a; border-radius: 10px; }
+.editableMetric { border-color: #3a3a3f; background: #19191c; transition: border-color 180ms ease, background 180ms ease; }
+.editableMetric:focus-within { border-color: #34d399; background: #1a201d; }
+.editHint { color: #71717a; }
+.playerMetric .metricInput { width: 100%; margin-top: 13px; padding: 0; border: none; border-radius: 3px; background: transparent; box-shadow: none; font-size: clamp(28px, 3vw, 38px); line-height: 1.15; font-weight: 650; letter-spacing: -.06em; font-variant-numeric: tabular-nums; }
+.playerMetric .metricInput:focus { outline-offset: 4px; }
+.saveRow { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 24px; padding-top: 22px; border-top: 1px solid #27272a; }
+.teamManagement { display: grid; gap: 24px; }
+.createTeam { display: grid; grid-template-columns: minmax(230px, .9fr) minmax(0, 1.4fr); align-items: center; gap: 16px 30px; padding: 28px; border: 1px solid #303034; border-radius: 17px; background: #111113; }
+.createTeam > p { grid-column: 1 / -1; margin-top: 0; }
+.createTeam > p:empty { display: none; }
+.createTeamHeading { display: flex; align-items: center; gap: 18px; }
+.createIcon { display: grid; flex: 0 0 auto; place-items: center; width: 44px; height: 44px; border: 1px solid #3f3f46; border-radius: 12px; font-size: 26px; font-weight: 300; color: #d4d4d8; }
+.teamListHeading { display: flex; align-items: center; gap: 12px; padding-top: 12px; }
+.teamListHeading h2 { font-size: 18px; font-weight: 600; letter-spacing: -.03em; }
+.teamListHeading > span { padding: 3px 7px; color: #a1a1aa; font-size: 10px; font-variant-numeric: tabular-nums; border: 1px solid #27272a; border-radius: 5px; }
+.teamGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 20px; }
+.teamCard { overflow: hidden; border: 1px solid #303034; border-radius: 18px; background: #111113; }
+.teamEntry { padding: 30px; background: linear-gradient(140deg, #1b1b1e, #111113 65%); }
+.teamCardTop { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 32px; }
+.teamBadge { display: grid; place-items: center; flex: 0 0 auto; width: 65px; height: 77px; border: 1px solid #4c6259; border-radius: 13px 13px 25px 25px; color: #6ee7b7; background: #213029; font-size: 23px; font-weight: 650; letter-spacing: -.07em; }
+.teamTag { margin-top: 4px; border: 1px solid #303034; border-radius: 5px; padding: 5px 8px; color: #71717a; font-size: 9px; letter-spacing: .06em; text-transform: uppercase; }
+.teamName { margin-top: 10px; font-size: clamp(28px, 3vw, 40px); font-weight: 700; letter-spacing: -.055em; line-height: 1.1; }
+.teamName button { max-width: 100%; overflow-wrap: anywhere; text-align: left; text-transform: uppercase; }
+.enterTeam { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 30px; padding: 15px 18px; background: #f4f4f5; color: #09090b; border-radius: 9px; font-size: 12px; font-weight: 600; transition: background 180ms ease; }
+.enterTeam:hover { background: #fff; }
+.enterTeam > span { font-size: 18px; }
+.teamSettings { padding: 22px 30px; border-top: 1px solid #27272a; }
+.teamSettings input { font-size: 12px; }
+.teamSettings button { font-size: 11px; }
+.deleteTeam { color: #f87171; font-size: 11px; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 4px; transition: text-decoration-color 180ms ease; }
+.deleteTeam:hover { text-decoration-color: currentColor; }
+.deleteTeam:disabled { opacity: .5; }
+
+@media (max-width: 1100px) {
+  .pickerGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .playerMetrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .createTeam { grid-template-columns: 1fr; }
+  .teamSettings form { flex-direction: column; }
+  .detailHero { flex-direction: column; align-items: flex-start; }
+  .chart { width: 100%; padding: 18px 0 0; border-top: 1px solid #27272a; }
+}
+
+@media (max-width: 760px) {
+  .chartLegend { flex: 1; max-width: 220px; }
+  .playerFormHeading { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .teamGrid { grid-template-columns: 1fr; }
+  .teamSettings form { flex-direction: row; }
+}
+
+@media (max-width: 540px) {
+  .dashboard { padding: 18px; border-radius: 15px; }
+  .sectionBar { gap: 12px; margin-bottom: 24px; padding-bottom: 20px; }
+  .tabs { width: 100%; }
+  .tab { flex: 1; justify-content: center; padding: 10px 9px; gap: 8px; }
+  .sectionCount { font-size: 9px; }
+  .pickerGrid { grid-template-columns: 1fr; gap: 12px; margin-top: 20px; }
+  .personCard { padding: 20px; }
+  .personCardTop { margin-bottom: 18px; }
+  .identity { gap: 14px; }
+  .largeAvatar { width: 55px; height: 64px; font-size: 20px; }
+  .summaryGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .summaryCard { padding: 16px; }
+  .matchToolbar { flex-direction: column; align-items: stretch; }
+  .searchLabel { width: 100%; }
+  .playerForm { padding: 18px; }
+  .playerMetrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .playerMetric { padding: 16px 12px; }
+  .saveRow { flex-direction: column; align-items: stretch; gap: 14px; }
+  .createTeam { padding: 22px; gap: 22px; }
+  .createTeamHeading { gap: 12px; }
+  .teamEntry { padding: 25px; }
+  .teamSettings { padding: 20px 25px; }
+  .teamSettings form { flex-direction: column; }
+  .teamSettings input { font-size: 16px; }
+  .chart { gap: 12px; }
+  .chartRing { width: 104px; height: 104px; }
+  .chartCenter { width: 89px; height: 89px; border-width: 5px; }
+  .chartCenter strong { font-size: 23px; }
+  .chartLegend { min-width: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .personCard, .cardArrow { transition: none; }
+  .personCard:hover, .personCard:hover .cardArrow { transform: none; }
+}

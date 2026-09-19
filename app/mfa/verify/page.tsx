@@ -85,8 +85,8 @@ export default function MFAVerifyPage() {
   }, [code, loading, verifyMFA])
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-6">
-      <div className="flex w-full max-w-sm flex-col gap-4">
+    <main className="cp-auth-page">
+      <div className="cp-auth-card">
         <h1 className="text-2xl font-bold">Verificación 2FA</h1>
 
         <p>Introduce el código de 6 dígitos de tu aplicación autenticadora.</p>
@@ -95,6 +95,7 @@ export default function MFAVerifyPage() {
           type="text"
           inputMode="numeric"
           autoComplete="one-time-code"
+          aria-label="Código de verificación de 6 dígitos"
           maxLength={6}
           placeholder="Código de 6 dígitos"
           value={code}

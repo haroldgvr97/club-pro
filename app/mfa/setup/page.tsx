@@ -104,8 +104,8 @@ export default function MFASetupPage() {
   }, [code, factorId, loading, verifyMFA])
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-6">
-      <div className="flex w-full max-w-sm flex-col gap-4">
+    <main className="cp-auth-page">
+      <div className="cp-auth-card">
         <h1 className="text-2xl font-bold">Configurar 2FA</h1>
 
         {!qrCode && (
@@ -133,6 +133,7 @@ export default function MFASetupPage() {
               type="text"
               inputMode="numeric"
               autoComplete="one-time-code"
+              aria-label="Código de verificación de 6 dígitos"
               placeholder="Código de 6 dígitos"
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}

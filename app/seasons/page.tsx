@@ -6,6 +6,7 @@ import { EditSeasonForm } from '@/components/edit-season-form'
 import { SeasonMatchHistory } from '@/components/season-match-history'
 import { getDashboardData } from '@/lib/data/get-dashboard-data'
 import { getAuthenticatedProfile } from '@/lib/auth/require-permission'
+import { PageHeading } from '@/components/page-heading'
 
 export default async function SeasonsPage() {
   const [{ seasons, matches, managers, opponents }, { profile }] = await Promise.all([
@@ -15,20 +16,16 @@ export default async function SeasonsPage() {
   const canManageSeasons = profile.role === 'admin' || profile.can_manage_seasons
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white md:flex">
+    <div className="cp-workspace min-h-screen text-white md:flex">
       <AppSidebar />
 
-      <main className="min-w-0 flex-1">
-        <div className="mx-auto max-w-7xl px-6 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold">Temporadas</h1>
-            <p className="mt-1 text-sm text-zinc-400">
-              Historial y estado de las temporadas
-            </p>
-          </div>
+      <main className="cp-main">
+        <div className="cp-content">
+          <PageHeading eyebrow="La historia de tu club" title="Temporadas"
+            description="Cada temporada, un nuevo capítulo. Todos tus partidos en un lugar." />
 
           {canManageSeasons ? <section className="mb-8 rounded-xl border border-zinc-800 bg-zinc-900 p-5">
-            <h2 className="mb-4 text-lg font-semibold">Agregar Temporada</h2>
+            <div className="cp-form-guide"><span aria-hidden="true">+</span><h2>Agregar temporada</h2></div>
             <CreateSeasonForm />
           </section>
           : null}

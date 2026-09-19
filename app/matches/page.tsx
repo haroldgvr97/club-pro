@@ -5,6 +5,7 @@ import { getDashboardData } from '@/lib/data/get-dashboard-data'
 import { getMatchResult } from '@/lib/matches/result'
 import { DeleteMatchButton } from '@/components/delete-match-button'
 import { getAuthenticatedProfile } from '@/lib/auth/require-permission'
+import { PageHeading } from '@/components/page-heading'
 
 export default async function MatchesPage() {
   const {
@@ -42,22 +43,16 @@ export default async function MatchesPage() {
   const showRecentMatches = false
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white md:flex">
+    <div className="cp-workspace min-h-screen text-white md:flex">
       <AppSidebar />
 
-      <main className="min-w-0 flex-1">
-        <div className="mx-auto max-w-7xl px-6 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold">Partidos</h1>
-            <p className="mt-1 text-sm text-zinc-400">
-              Anota el rival y el manager al empezar. Guarda el resultado al terminar.
-            </p>
-          </div>
+      <main className="cp-main">
+        <div className="cp-content">
+          <PageHeading eyebrow="En la cancha" title="Partidos"
+            description="Cada partido cuenta. Registra tu equipo y guarda el resultado final." />
 
           {canManageMatches ? <section className="mb-8 rounded-xl border border-zinc-800 bg-zinc-900 p-5">
-            <h2 className="mb-4 text-lg font-semibold">
-              Registrar partido
-            </h2>
+            <div className="cp-form-guide"><span aria-hidden="true">01</span><h2>Registrar partido</h2></div>
 
             <CreateMatchForm
               seasons={seasonOptions}

@@ -1,48 +1,56 @@
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
 import { getActiveTeamId } from '@/lib/teams/active-team'
+import { AppNavigation, type NavigationItem } from '@/components/app-navigation'
+import styles from './app-navigation.module.css'
 
-const links = [
-  { href: '/', label: 'Dashboard' },
-  { href: '/matches', label: 'Partidos' },
-  { href: '/managers', label: 'Estadísticas' },
-  { href: '/opponents', label: 'Rivales' },
-  { href: '/seasons', label: 'Temporadas' },
-  { href: '/admin/users', label: 'Usuarios' },
+const links: NavigationItem[] = [
+  { href: '/', label: 'Dashboard', icon: 'dashboard' },
+  { href: '/matches', label: 'Partidos', icon: 'matches' },
+  { href: '/managers', label: 'Estadísticas', icon: 'statistics' },
+  { href: '/opponents', label: 'Rivales', icon: 'opponents' },
+  { href: '/seasons', label: 'Temporadas', icon: 'seasons' },
+  { href: '/admin/users', label: 'Usuarios', icon: 'users' },
 ]
 
 // La sección se conserva para poder volver a activarla más adelante.
 const showOpponentsLink = false
 
-export async function AppSidebar({ teamsOnly = false }: { teamsOnly?: boolean } = {}) {
-  if (teamsOnly) return (
-    <aside className="w-full border-b border-zinc-800 bg-zinc-950 md:min-h-screen md:w-64 md:shrink-0 md:border-r">
-      <div className="p-6 text-xl font-bold text-white">Clubes Pro</div>
-      <nav className="px-4 pb-4"><Link href="/teams" className="block rounded-lg bg-zinc-800 px-4 py-2 text-white">Equipos</Link></nav>
+function SidebarFrame({ teamName, teamsOnly = false }: { teamName?: string; teamsOnly?: boolean }) {
+  return (
+    <aside className={styles.sidebar}>
+      <Link
+        href={teamsOnly ? '/teams' : '/'}
+        className={styles.brand}
+        aria-label={teamsOnly ? 'Clubes Pro' : `Clubes Pro: ${teamName}`}
+      >
+        <span className={styles.monogram} aria-hidden="true">CP<span /></span>
+        <span className={styles.brandText}>
+          <span className={styles.brandName}>Clubes Pro{teamsOnly ? '' : ':'}</span>
+          <span className={styles.teamName}>{teamsOnly ? 'Administración' : teamName}</span>
+        </span>
+      </Link>
+
+      <div className={styles.sectionLabel}>{teamsOnly ? 'Tu plataforma' : 'Centro del club'}</div>
+      <AppNavigation
+        links={teamsOnly
+          ? [{ href: '/teams', label: 'Equipos', icon: 'teams' }]
+          : links.filter((link) => showOpponentsLink || link.href !== '/opponents')}
+      />
+
+      <div className={styles.signature} aria-hidden="true">
+        <div className={styles.signatureLines}><span /><span /><span /></div>
+        <span>Creado para competir.</span>
+        <span className={styles.signatureBrand}>CLUBES PRO</span>
+      </div>
     </aside>
   )
+}
+
+export async function AppSidebar({ teamsOnly = false }: { teamsOnly?: boolean } = {}) {
+  if (teamsOnly) return <SidebarFrame teamsOnly />
   const supabase = await createClient()
   const teamId = await getActiveTeamId()
   const { data: team } = await supabase.from('teams').select('name').eq('id', teamId).maybeSingle()
-  return (
-    <aside className="w-full border-b border-zinc-800 bg-zinc-950 md:min-h-screen md:w-64 md:shrink-0 md:border-b-0 md:border-r">
-      <div className="p-6">
-        <Link href="/" className="text-xl font-bold text-white">Clubes Pro: {team?.name ?? 'Equipo'}</Link>
-      </div>
-
-      <nav className="flex gap-2 overflow-x-auto px-4 pb-4 md:flex-col md:overflow-visible">
-        {links
-          .filter((link) => showOpponentsLink || link.href !== '/opponents')
-          .map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className="whitespace-nowrap rounded-lg px-4 py-2 text-sm text-zinc-300 transition hover:bg-zinc-900 hover:text-white"
-          >
-            {link.label}
-          </Link>
-          ))}
-      </nav>
-    </aside>
-  )
+  return <SidebarFrame teamName={team?.name ?? 'Equipo'} />
 }

@@ -2,6 +2,7 @@ import { AppSidebar } from '@/components/app-sidebar'
 import { StatisticsDashboard } from '@/components/statistics-dashboard'
 import { getDashboardData } from '@/lib/data/get-dashboard-data'
 import { getAuthenticatedProfile } from '@/lib/auth/require-permission'
+import { PageHeading } from '@/components/page-heading'
 
 export default async function ManagersPage() {
   const [{ managers, matches }, { user, profile }] = await Promise.all([
@@ -13,17 +14,13 @@ export default async function ManagersPage() {
   )
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white md:flex">
+    <div className="cp-workspace min-h-screen text-white md:flex">
       <AppSidebar />
 
-      <main className="min-w-0 flex-1">
-        <div className="mx-auto max-w-7xl px-6 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold">Estadísticas</h1>
-            <p className="mt-1 text-sm text-zinc-400">
-              Resultados de Managers y estadísticas de Jugadores
-            </p>
-          </div>
+      <main className="cp-main">
+        <div className="cp-content">
+          <PageHeading eyebrow="El juego, en números" title="Estadísticas"
+            description="El rendimiento de quienes dirigen. El impacto de quienes juegan." />
 
           <StatisticsDashboard
             managers={visibleManagers}

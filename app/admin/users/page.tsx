@@ -3,6 +3,7 @@ import { UserManagement } from '@/components/user-management'
 import { getAuthenticatedProfile } from '@/lib/auth/require-permission'
 import { getActiveTeamId } from '@/lib/teams/active-team'
 import { createAdminClient } from '@/utils/supabase/admin'
+import { PageHeading } from '@/components/page-heading'
 
 export default async function AdminUsersPage() {
   const { profile, user } = await getAuthenticatedProfile()
@@ -26,10 +27,10 @@ export default async function AdminUsersPage() {
   const profiles = (result.data ?? []).map(memberProfile => ({ ...memberProfile, ...members?.find(member => member.profile_id === memberProfile.id), can_manage_permissions: members?.find(member => member.profile_id === memberProfile.id)?.can_manage_permissions ?? false }))
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white md:flex">
+    <div className="cp-workspace min-h-screen text-white md:flex">
       <AppSidebar />
-      <main className="min-w-0 flex-1"><div className="mx-auto max-w-7xl px-6 py-8">
-        <div className="mb-8"><h1 className="text-3xl font-bold">Usuarios</h1><p className="mt-1 text-sm text-zinc-400">Invitaciones, cuentas y permisos</p></div>
+      <main className="cp-main"><div className="cp-content">
+        <PageHeading eyebrow="Dentro del equipo" title="Usuarios" description="Reúne a tu equipo. Gestiona invitaciones, cuentas y permisos." />
         <UserManagement profiles={profiles.map(member => ({ ...member, email: member.role === 'admin' ? '' : member.email }))} currentUserId={user.id} isAdmin={isAdmin} canManagePermissions={canManagePermissions} canSendInvites={canSendInvites} />
       </div></main>
     </div>

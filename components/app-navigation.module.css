@@ -1,0 +1,69 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  border-bottom: 1px solid #27272a;
+  background: #0b0b0d;
+}
+.brand { display: flex; align-items: center; gap: 14px; padding: 24px 22px; color: #fafafa; }
+.monogram {
+  position: relative;
+  display: grid;
+  flex-shrink: 0;
+  width: 42px;
+  height: 46px;
+  place-items: center;
+  border: 1px solid #3f3f46;
+  border-radius: 10px 10px 16px 4px;
+  background: #f4f4f5;
+  color: #09090b;
+  font-size: 20px;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: -2px;
+}
+.monogram span { position: absolute; right: -3px; bottom: 3px; width: 9px; height: 9px; border: 2px solid #0b0b0d; border-radius: 50%; background: #34d399; }
+.brandText { display: grid; min-width: 0; gap: 4px; }
+.brandName { font-size: 20px; font-weight: 750; letter-spacing: -0.8px; line-height: 1.1; }
+.teamName { overflow-wrap: anywhere; color: #a1a1aa; font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; }
+.sectionLabel { display: none; padding: 0 25px 12px; color: #71717a; font-size: 9px; font-weight: 650; letter-spacing: 2px; text-transform: uppercase; }
+.navigation { display: flex; gap: 5px; padding: 0 14px 14px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: #3f3f46 transparent; }
+.link {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 13px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: #a1a1aa;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+.link:hover { background: #18181b; color: #fafafa; }
+.link:focus-visible, .brand:focus-visible { outline: 2px solid #34d399; outline-offset: -2px; }
+.link.active { border-color: #34d39926; background: #34d3990d; color: #6ee7b7; }
+.arrow { display: none; margin-left: auto; opacity: 0; }
+.signature { display: none; }
+@media (min-width: 768px) {
+  .sidebar { position: sticky; top: 0; align-self: flex-start; flex-shrink: 0; width: 250px; height: 100dvh; overflow-y: auto; border-right: 1px solid #27272a; border-bottom: 0; }
+  .brand { padding: 34px 23px 45px; }
+  .sectionLabel { display: block; }
+  .navigation { flex-direction: column; gap: 7px; padding: 0 14px; overflow: visible; }
+  .link { min-height: 49px; padding: 0 13px; }
+  .link.active::before { position: absolute; top: 13px; bottom: 13px; left: -15px; width: 3px; border-radius: 0 3px 3px 0; background: #34d399; content: ''; }
+  .arrow { display: block; }
+  .active .arrow { opacity: 0.7; }
+  .signature { display: grid; gap: 8px; margin-top: auto; padding: 45px 27px 28px; color: #71717a; font-size: 11px; }
+  .signatureBrand { color: #52525b; font-size: 8px; font-weight: 600; letter-spacing: 3px; }
+  .signatureLines { display: flex; align-items: flex-end; gap: 4px; height: 26px; margin-bottom: 7px; }
+  .signatureLines span { width: 4px; height: 12px; background: #34d399; transform: skew(-24deg); }
+  .signatureLines span:nth-child(2) { height: 19px; opacity: 0.7; }
+  .signatureLines span:nth-child(3) { height: 26px; opacity: 0.4; }
+}
+@media (prefers-reduced-motion: reduce) { .link { transition: none; } }

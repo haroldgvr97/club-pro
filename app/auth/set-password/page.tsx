@@ -57,16 +57,17 @@ export default function SetPasswordPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-6">
+    <main className="cp-auth-page">
       <form
         onSubmit={handleSubmit}
-        className="flex w-full max-w-sm flex-col gap-4"
+        className="cp-auth-card"
       >
         <h1 className="text-2xl font-bold">Crear contraseña</h1>
 
         <input
           type="text"
           placeholder="Tu nombre o alias"
+          aria-label="Tu nombre o alias"
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
           required
@@ -78,6 +79,8 @@ export default function SetPasswordPage() {
         <input
           type="password"
           placeholder="Nueva contraseña"
+          aria-label="Nueva contraseña"
+          autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -88,6 +91,8 @@ export default function SetPasswordPage() {
         <input
           type="password"
           placeholder="Confirmar contraseña"
+          aria-label="Confirmar contraseña"
+          autoComplete="new-password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required

@@ -9,10 +9,10 @@ export default async function TeamsPage() {
   if (profile.role !== 'admin') redirect('/')
   const { data, error } = await supabase.from('teams').select('id, name').order('name')
   if (error) throw new Error('No se pudieron cargar los equipos.')
-  return <div className="min-h-screen bg-zinc-950 text-white md:flex">
+  return <div className="cp-workspace min-h-screen text-white md:flex">
     <AppSidebar teamsOnly />
-    <main className="min-w-0 flex-1 px-6 py-8"><div className="mx-auto max-w-5xl">
-      <div className="mb-8 flex items-center justify-between gap-4"><div><h1 className="text-3xl font-bold">Equipos</h1><p className="mt-1 text-sm text-zinc-400">Selecciona un equipo para acceder a su Dashboard, Partidos, Estadísticas, Temporadas y Usuarios.</p></div><form action={logout}><button className="whitespace-nowrap rounded-lg border border-zinc-700 px-3 py-2 text-sm">Cerrar sesión</button></form></div>
+    <main className="cp-main"><div className="cp-content">
+      <header className="cp-page-header"><div><p className="cp-eyebrow">Tu centro de control</p><h1>Tus equipos.</h1><p>Elige un club. Entra a su historia. Construye lo que viene.</p></div><form action={logout}><button className="cp-button">Cerrar sesión</button></form></header>
       <TeamManagement teams={data ?? []} isAdmin={profile.role === 'admin'} />
     </div></main>
   </div>
