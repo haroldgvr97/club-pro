@@ -41,10 +41,6 @@ export async function getDashboardData() {
           id,
           name
         ),
-        managers (
-          id,
-          name
-        ),
         opponents (
           id,
           name
