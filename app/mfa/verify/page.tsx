@@ -9,54 +9,65 @@ export default function MFAVerifyPage() {
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const attemptedCode = useRef<string | null>(null)
+  const inFlight = useRef(false)
 
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
 
   const verifyMFA = useCallback(async (verificationCode: string) => {
+    if (inFlight.current || !/^\d{6}$/.test(verificationCode)) return
+    inFlight.current = true
+    attemptedCode.current = verificationCode
     setLoading(true)
     setMessage('')
+    try {
+      const { data, error: factorsError } =
+        await supabase.auth.mfa.listFactors()
 
-    const { data, error: factorsError } =
-      await supabase.auth.mfa.listFactors()
+      if (factorsError) {
+        setMessage(factorsError.message)
+        setLoading(false)
+        return
+      }
 
-    if (factorsError) {
-      setMessage(factorsError.message)
-      setLoading(false)
-      return
-    }
+      const factor = data.totp.find((factor) => factor.status === 'verified')
 
-    const factor = data.totp.find((factor) => factor.status === 'verified')
+      if (!factor) {
+        router.push('/mfa/setup')
+        return
+      }
 
-    if (!factor) {
-      router.push('/mfa/setup')
-      return
-    }
+      const { data: challenge, error: challengeError } =
+        await supabase.auth.mfa.challenge({
+          factorId: factor.id,
+        })
 
-    const { data: challenge, error: challengeError } =
-      await supabase.auth.mfa.challenge({
+      if (challengeError) {
+        setMessage(challengeError.message)
+        setLoading(false)
+        return
+      }
+
+      const { error: verifyError } = await supabase.auth.mfa.verify({
         factorId: factor.id,
+        challengeId: challenge.id,
+        code: verificationCode,
       })
 
-    if (challengeError) {
-      setMessage(challengeError.message)
+      if (verifyError) {
+        setMessage('Código incorrecto. Inténtalo nuevamente.')
+        setLoading(false)
+        return
+      }
+
+      router.replace('/')
+      router.refresh()
+    } catch {
+      setMessage('No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.')
+    } finally {
+      inFlight.current = false
       setLoading(false)
-      return
     }
-
-    const { error: verifyError } = await supabase.auth.mfa.verify({
-      factorId: factor.id,
-      challengeId: challenge.id,
-      code: verificationCode,
-    })
-
-    if (verifyError) {
-      setMessage('Código incorrecto. Inténtalo nuevamente.')
-      setLoading(false)
-      return
-    }
-
-    router.push('/')
   }, [router, supabase])
 
   useEffect(() => {
@@ -87,7 +98,7 @@ export default function MFAVerifyPage() {
           maxLength={6}
           placeholder="Código de 6 dígitos"
           value={code}
-          onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+          onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
           className="rounded border p-3"
         />
 
@@ -97,7 +108,7 @@ export default function MFAVerifyPage() {
             : 'La verificación comenzará automáticamente al introducir los 6 dígitos.'}
         </p>
 
-        {message && <p>{message}</p>}
+        {message && <><p role="alert">{message}</p><button disabled={loading || code.length !== 6} onClick={() => void verifyMFA(code)} className="rounded border p-3 disabled:opacity-50">Reintentar verificación</button></>}
       </div>
     </main>
   )

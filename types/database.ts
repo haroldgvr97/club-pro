@@ -256,8 +256,9 @@ export type Database = {
     }
     Functions: {
       activate_season: { Args: { p_season_id: number }; Returns: undefined }
+      get_team_roster: { Args: { p_team_id: number }; Returns: { id: number; name: string; is_active: boolean; profile_id: string | null }[] }
       save_match_with_players: { Args: { p_team_id: number; p_match: Json; p_player_ids: number[]; p_match_id?: number }; Returns: number }
-      assign_invited_user_to_team: { Args: { p_team_id: number; p_user_id: string }; Returns: undefined }
+      assign_invited_user_to_team: { Args: { p_team_id: number; p_user_id: string; p_inviter_id: string }; Returns: undefined }
       set_team_permissions: { Args: { p_team_id: number; p_user_id: string; p_permissions: Json }; Returns: undefined }
       update_player_stats: { Args: { p_team_id: number; p_manager_id: number; p_goals: number; p_assists: number }; Returns: undefined }
       create_managed_team: { Args: { p_name: string }; Returns: number }

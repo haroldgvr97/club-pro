@@ -25,7 +25,7 @@ export async function AppSidebar({ teamsOnly = false }: { teamsOnly?: boolean } 
   const teamId = await getActiveTeamId()
   const { data: team } = await supabase.from('teams').select('name').eq('id', teamId).maybeSingle()
   return (
-    <aside className="w-full border-b border-zinc-800 bg-zinc-950 md:min-h-screen md:w-64 md:border-b-0 md:border-r">
+    <aside className="w-full border-b border-zinc-800 bg-zinc-950 md:min-h-screen md:w-64 md:shrink-0 md:border-b-0 md:border-r">
       <div className="p-6">
         <Link href="/" className="text-xl font-bold text-white">Clubes Pro: {team?.name ?? 'Equipo'}</Link>
       </div>

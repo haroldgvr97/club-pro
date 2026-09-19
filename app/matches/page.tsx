@@ -45,7 +45,7 @@ export default async function MatchesPage() {
     <div className="min-h-screen bg-zinc-950 text-white md:flex">
       <AppSidebar />
 
-      <main className="flex-1">
+      <main className="min-w-0 flex-1">
         <div className="mx-auto max-w-7xl px-6 py-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold">Partidos</h1>

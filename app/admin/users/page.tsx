@@ -28,7 +28,7 @@ export default async function AdminUsersPage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-white md:flex">
       <AppSidebar />
-      <main className="flex-1"><div className="mx-auto max-w-7xl px-6 py-8">
+      <main className="min-w-0 flex-1"><div className="mx-auto max-w-7xl px-6 py-8">
         <div className="mb-8"><h1 className="text-3xl font-bold">Usuarios</h1><p className="mt-1 text-sm text-zinc-400">Invitaciones, cuentas y permisos</p></div>
         <UserManagement profiles={profiles.map(member => ({ ...member, email: member.role === 'admin' ? '' : member.email }))} currentUserId={user.id} isAdmin={isAdmin} canManagePermissions={canManagePermissions} canSendInvites={canSendInvites} />
       </div></main>

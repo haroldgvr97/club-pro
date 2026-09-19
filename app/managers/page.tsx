@@ -8,16 +8,15 @@ export default async function ManagersPage() {
     getDashboardData(),
     getAuthenticatedProfile(),
   ])
-  const visibleManagers =
-    profile.role === 'admin'
-      ? managers.filter((manager) => manager.profile_id !== user.id)
-      : managers
+  const visibleManagers = managers.filter(manager =>
+    manager.can_view_stats && (profile.role !== 'admin' || manager.profile_id !== user.id)
+  )
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white md:flex">
       <AppSidebar />
 
-      <main className="flex-1">
+      <main className="min-w-0 flex-1">
         <div className="mx-auto max-w-7xl px-6 py-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold">Estadísticas</h1>

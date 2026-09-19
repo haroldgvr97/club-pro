@@ -10,6 +10,7 @@ export async function getDashboardData() {
     managersResult,
     opponentsResult,
     matchesResult,
+    rosterResult,
   ] = await Promise.all([
     supabase
       .from('seasons')
@@ -51,13 +52,14 @@ export async function getDashboardData() {
       `)
       .eq('team_id', teamId)
       .order('played_at', { ascending: false }),
+    supabase.rpc('get_team_roster', { p_team_id: teamId }),
   ])
 
   if (seasonsResult.error) {
     throw new Error('No se pudieron cargar las temporadas.')
   }
 
-  if (managersResult.error) {
+  if (managersResult.error || rosterResult.error) {
     throw new Error('No se pudieron cargar los managers.')
   }
 
@@ -69,10 +71,21 @@ export async function getDashboardData() {
     throw new Error('No se pudieron cargar los partidos.')
   }
 
+  const statisticsById = new Map((managersResult.data ?? []).map(manager => [manager.id, manager]))
+  const managers = (rosterResult.data ?? []).map(manager => ({
+    ...manager,
+    goals: statisticsById.get(manager.id)?.goals ?? 0,
+    assists: statisticsById.get(manager.id)?.assists ?? 0,
+    can_view_stats: statisticsById.has(manager.id),
+  }))
+  const namesById = new Map(managers.map(manager => [manager.id, { id: manager.id, name: manager.name }]))
   return {
     seasons: seasonsResult.data ?? [],
-    managers: managersResult.data ?? [],
+    managers,
     opponents: opponentsResult.data ?? [],
-    matches: matchesResult.data ?? [],
+    matches: (matchesResult.data ?? []).map(match => ({
+      ...match,
+      managers: match.manager_id === null ? null : namesById.get(match.manager_id) ?? null,
+    })),
   }
 }

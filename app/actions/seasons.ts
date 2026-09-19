@@ -53,6 +53,7 @@ export async function createSeason(formData: FormData) {
     }
 
     revalidatePath('/seasons')
+    revalidatePath('/matches')
     revalidatePath('/')
 
     return { success: true }
@@ -68,8 +69,10 @@ export async function activateSeason(formData: FormData) {
   }
 
   try {
-    await requirePermission('can_manage_seasons')
-    const supabase = createAdminClient()
+    const { supabase } = await requirePermission('can_manage_seasons')
+    const teamId = await getActiveTeamId()
+    const { data: season, error: lookupError } = await supabase.from('seasons').select('id').eq('id', seasonId).eq('team_id', teamId).maybeSingle()
+    if (lookupError || !season) return { error: 'La temporada no existe en este equipo.' }
 
     const { error } = await supabase.rpc('activate_season', {
       p_season_id: seasonId,
@@ -83,6 +86,8 @@ export async function activateSeason(formData: FormData) {
       return { error: 'No se pudo activar la temporada.' }
     }
 
+    revalidatePath('/seasons')
+    revalidatePath('/matches')
     revalidatePath('/')
 
     return { success: true }
@@ -125,6 +130,8 @@ export async function deleteSeason(formData: FormData) {
       return { error: 'La temporada no existe.' }
     }
 
+    revalidatePath('/seasons')
+    revalidatePath('/matches')
     revalidatePath('/')
 
     return { success: true }
@@ -192,6 +199,8 @@ export async function updateSeason(formData: FormData) {
       return { error: 'La temporada no existe.' }
     }
 
+    revalidatePath('/seasons')
+    revalidatePath('/matches')
     revalidatePath('/')
 
     return { success: true }

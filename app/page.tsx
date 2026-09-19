@@ -39,6 +39,7 @@ export default async function Home() {
   )
 
   const managerStats = [...stats.managers]
+    .filter(stat => data.managers.some(manager => manager.id === stat.managerId && manager.can_view_stats))
     .sort((a, b) => b.played - a.played)
     .slice(0, 5)
 
@@ -46,7 +47,7 @@ export default async function Home() {
     <div className="min-h-screen bg-zinc-950 text-white md:flex">
       <AppSidebar />
 
-      <main className="flex-1">
+      <main className="min-w-0 flex-1">
         <div className="mx-auto max-w-7xl px-6 py-8">
           <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
             <div>

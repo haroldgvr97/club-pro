@@ -11,57 +11,84 @@ export default function MFASetupPage() {
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const attemptedCode = useRef<string | null>(null)
+  const inFlight = useRef(false)
 
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
 
   async function enrollMFA() {
+    if (inFlight.current) return
+    inFlight.current = true
+    setLoading(true)
     setMessage('')
+    try {
+      const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors()
+      if (factorsError) throw factorsError
+      if (factors.totp.some(factor => factor.status === 'verified')) { router.replace('/mfa/verify'); return }
+      for (const factor of factors.all.filter(factor => factor.factor_type === 'totp' && factor.status === 'unverified')) {
+        const { error } = await supabase.auth.mfa.unenroll({ factorId: factor.id })
+        if (error) throw error
+      }
 
-    const { data, error } = await supabase.auth.mfa.enroll({
-      factorType: 'totp',
-      friendlyName: 'Club Pro',
-    })
+      const { data, error } = await supabase.auth.mfa.enroll({
+        factorType: 'totp',
+        friendlyName: 'Clubes Pro',
+      })
 
-    if (error) {
-      setMessage(error.message)
-      return
+      if (error) {
+        setMessage(error.message)
+        return
+      }
+
+      setFactorId(data.id)
+      setQrCode(data.totp.qr_code)
+    } catch {
+      setMessage('No se pudo iniciar la configuración. Revisa tu conexión e inténtalo de nuevo.')
+    } finally {
+      inFlight.current = false
+      setLoading(false)
     }
-
-    setFactorId(data.id)
-    setQrCode(data.totp.qr_code)
   }
 
   const verifyMFA = useCallback(async (verificationCode: string) => {
-    if (!factorId) return
+    if (!factorId || inFlight.current || !/^\d{6}$/.test(verificationCode)) return
+    inFlight.current = true
+    attemptedCode.current = verificationCode
 
     setLoading(true)
     setMessage('')
+    try {
+      const { data: challengeData, error: challengeError } =
+        await supabase.auth.mfa.challenge({
+          factorId,
+        })
 
-    const { data: challengeData, error: challengeError } =
-      await supabase.auth.mfa.challenge({
+      if (challengeError) {
+        setMessage(challengeError.message)
+        setLoading(false)
+        return
+      }
+
+      const { error } = await supabase.auth.mfa.verify({
         factorId,
+        challengeId: challengeData.id,
+        code: verificationCode,
       })
 
-    if (challengeError) {
-      setMessage(challengeError.message)
+      if (error) {
+        setMessage('Código incorrecto. Inténtalo nuevamente.')
+        setLoading(false)
+        return
+      }
+
+      router.replace('/')
+      router.refresh()
+    } catch {
+      setMessage('No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.')
+    } finally {
+      inFlight.current = false
       setLoading(false)
-      return
     }
-
-    const { error } = await supabase.auth.mfa.verify({
-      factorId,
-      challengeId: challengeData.id,
-      code: verificationCode,
-    })
-
-    if (error) {
-      setMessage('Código incorrecto. Inténtalo nuevamente.')
-      setLoading(false)
-      return
-    }
-
-    router.push('/')
   }, [factorId, router, supabase])
 
   useEffect(() => {
@@ -84,6 +111,7 @@ export default function MFASetupPage() {
         {!qrCode && (
           <button
             onClick={enrollMFA}
+            disabled={loading}
             className="rounded bg-black p-3 text-white"
           >
             Configurar autenticador
@@ -107,7 +135,7 @@ export default function MFASetupPage() {
               autoComplete="one-time-code"
               placeholder="Código de 6 dígitos"
               value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               maxLength={6}
               className="rounded border p-3"
             />
@@ -120,7 +148,8 @@ export default function MFASetupPage() {
           </>
         )}
 
-        {message && <p>{message}</p>}
+        {message && <p role="alert">{message}</p>}
+        {message && factorId && <button disabled={loading || code.length !== 6} onClick={() => void verifyMFA(code)} className="rounded border p-3 disabled:opacity-50">Reintentar verificación</button>}
       </div>
     </main>
   )
