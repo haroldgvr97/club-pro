@@ -1,5 +1,6 @@
 export type ManagerPlayerMatch = {
-  manager_id: number | null
+  manager_id?: number | null
+  match_players?: { player_id: number }[]
 }
 
 export type ManagerPlayerStats = {
@@ -17,7 +18,7 @@ export function getManagerPlayerStats(
   goals: number,
   assists: number
 ): ManagerPlayerStats {
-  const played = matches.filter((match) => match.manager_id === managerId).length
+  const played = matches.filter((match) => match.match_players?.some(player => player.player_id === managerId)).length
   const goalContributions = goals + assists
 
   return {

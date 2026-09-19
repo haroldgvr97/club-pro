@@ -1,10 +1,17 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { getMatchResult } from '@/lib/matches/result'
+import { EditMatchForm } from '@/components/edit-match-form'
+import { DeleteMatchButton } from '@/components/delete-match-button'
 
 type Manager = { id: number; name: string }
 type Match = {
+  season_id: number
+  opponent_id: number
+  notes: string | null
+  participants_recorded: boolean
+  match_players: { player_id: number }[]
   id: number
   manager_id: number | null
   our_goals: number
@@ -18,10 +25,16 @@ export function SeasonMatchHistory({
   seasonName,
   matches,
   managers,
+  seasons,
+  opponents,
+  canManageMatches,
 }: {
   seasonName: string
   matches: Match[]
   managers: Manager[]
+  seasons: Manager[]
+  opponents: Manager[]
+  canManageMatches: boolean
 }) {
   const [rival, setRival] = useState('')
   const [managerId, setManagerId] = useState('')
@@ -92,6 +105,7 @@ export function SeasonMatchHistory({
                 <th className="px-4 py-3 font-medium">Resultado</th>
                 <th className="px-4 py-3 font-medium">Manager</th>
                 <th className="px-4 py-3 font-medium">Estado</th>
+                <th className="px-4 py-3 font-medium">Participantes</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-800">
@@ -101,13 +115,28 @@ export function SeasonMatchHistory({
                 const color = result === 'win' ? 'text-emerald-400' : result === 'draw' ? 'text-amber-400' : 'text-red-400'
 
                 return (
-                  <tr key={match.id}>
+                  <Fragment key={match.id}><tr>
                     <td className="px-4 py-3 font-medium">{match.opponents?.name ?? 'Rival'}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-zinc-400">{new Date(match.played_at).toLocaleString('es-ES')}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-lg font-semibold">{match.our_goals} - {match.opponent_goals}</td>
                     <td className="px-4 py-3">{match.managers?.name ?? 'Sin Manager'}</td>
                     <td className={`px-4 py-3 font-medium ${color}`}>{label}</td>
+                    <td className="px-4 py-3 text-zinc-300">{match.participants_recorded
+                      ? match.match_players.map(player => managers.find(manager => manager.id === player.player_id)?.name ?? 'Jugador eliminado').join(', ') || 'Sin participantes'
+                      : <span className="text-amber-300">Participantes pendientes</span>}</td>
                   </tr>
+                  {canManageMatches && <tr><td colSpan={6} className="px-4 pb-4">
+                    <details className="rounded-lg border border-zinc-800 p-3">
+                      <summary className="cursor-pointer text-sm text-zinc-300">Editar partido y participantes</summary>
+                      <div className="mt-4 space-y-4">
+                        <EditMatchForm matchId={match.id} seasonId={match.season_id} managerId={match.manager_id}
+                          opponentId={match.opponent_id} ourGoals={match.our_goals} opponentGoals={match.opponent_goals}
+                          notes={match.notes} playedAt={match.played_at} seasons={seasons} managers={managers} opponents={opponents}
+                          playerIds={match.match_players.map(player => player.player_id)} />
+                        <DeleteMatchButton matchId={match.id} />
+                      </div>
+                    </details>
+                  </td></tr>}</Fragment>
                 )
               })}
             </tbody>

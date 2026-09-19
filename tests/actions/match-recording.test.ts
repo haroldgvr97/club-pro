@@ -22,7 +22,7 @@ function database(existing: { id: number; name: string }[] = []) {
   const client = { from: vi.fn((table: string) => table === 'matches'
     ? { insert: saveMatch }
     : { select: () => ({ eq: async () => ({ data: existing, error: null }) }), insert: createTeam }) }
-  vi.mocked(requirePermission).mockResolvedValue({} as Awaited<ReturnType<typeof requirePermission>>)
+  vi.mocked(requirePermission).mockResolvedValue({ supabase: { rpc: saveMatch } } as unknown as Awaited<ReturnType<typeof requirePermission>>)
   vi.mocked(getActiveTeamId).mockResolvedValue(1)
   vi.mocked(createAdminClient).mockReturnValue(client as unknown as ReturnType<typeof createAdminClient>)
   return { saveMatch, createTeam }
@@ -34,14 +34,14 @@ describe('record a match by team name', () => {
     const { saveMatch, createTeam } = database([{ id: 7, name: 'Real FC' }])
     expect(await createMatch(form())).toEqual({ success: true })
     expect(createTeam).not.toHaveBeenCalled()
-    expect(saveMatch).toHaveBeenCalledWith(expect.objectContaining({ opponent_id: 7, manager_id: 2, our_goals: 2, opponent_goals: 1, location: null, played_at: expect.any(String) }))
+    expect(saveMatch).toHaveBeenCalledWith('save_match_with_players', expect.objectContaining({ p_team_id: 1, p_match: expect.objectContaining({ opponent_id: 7, manager_id: 2, our_goals: 2, opponent_goals: 1, location: null, played_at: expect.any(String) }) }))
     expect(revalidatePath).toHaveBeenCalledWith('/matches')
   })
   it('creates a new team and associates the result with it', async () => {
     const { saveMatch, createTeam } = database()
     expect(await createMatch(form())).toEqual({ success: true })
     expect(createTeam).toHaveBeenCalledWith({ name: 'REAL fc', team_id: 1 })
-    expect(saveMatch).toHaveBeenCalledWith(expect.objectContaining({ opponent_id: 8 }))
+    expect(saveMatch).toHaveBeenCalledWith('save_match_with_players', expect.objectContaining({ p_match: expect.objectContaining({ opponent_id: 8 }) }))
   })
   it('does not silently record an unfinished match as 0–0', async () => {
     const data = form()

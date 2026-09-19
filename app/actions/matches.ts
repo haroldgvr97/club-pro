@@ -7,6 +7,8 @@ import { createAdminClient } from '@/utils/supabase/admin'
 import { getActiveTeamId } from '@/lib/teams/active-team'
 
 export async function createMatch(formData: FormData) {
+  const playerIds = [...new Set(formData.getAll('player_ids').map(Number))]
+  if (playerIds.some(id => !Number.isSafeInteger(id) || id <= 0)) return { error: 'Participantes inválidos.' }
   const seasonId = Number(formData.get('season_id'))
   const managerId = Number(formData.get('manager_id'))
   let opponentId = Number(formData.get('opponent_id'))
@@ -65,7 +67,7 @@ export async function createMatch(formData: FormData) {
   }
 
   try {
-    await requirePermission('can_manage_matches')
+    const { supabase: sessionClient } = await requirePermission('can_manage_matches')
     const teamId = await getActiveTeamId()
     const supabase = createAdminClient()
 
@@ -103,9 +105,10 @@ export async function createMatch(formData: FormData) {
       }
     }
 
-    const { error } = await supabase
-      .from('matches')
-      .insert({
+    const { error } = await sessionClient.rpc('save_match_with_players', {
+      p_team_id: teamId,
+      p_player_ids: playerIds,
+      p_match: {
         season_id: seasonId,
         team_id: teamId,
         manager_id: managerId,
@@ -115,9 +118,11 @@ export async function createMatch(formData: FormData) {
         location: cleanLocation,
         notes: cleanNotes,
         played_at: cleanPlayedAt,
-      })
+      },
+    })
 
     if (error) {
+      if (error.message?.includes('INVALID_PARTICIPANTS')) return { error: 'Todos los participantes deben pertenecer a este equipo.' }
       if (error.code === '23503') {
         return {
           error:
@@ -170,6 +175,8 @@ export async function deleteMatch(formData: FormData) {
 
     revalidatePath('/')
     revalidatePath('/matches')
+    revalidatePath('/seasons')
+    revalidatePath('/managers')
     revalidatePath('/opponents')
 
     return { success: true }
@@ -179,6 +186,8 @@ export async function deleteMatch(formData: FormData) {
 }
 
 export async function updateMatch(formData: FormData) {
+  const playerIds = [...new Set(formData.getAll('player_ids').map(Number))]
+  if (playerIds.some(id => !Number.isSafeInteger(id) || id <= 0)) return { error: 'Participantes inválidos.' }
   const matchId = Number(formData.get('match_id'))
   const seasonId = Number(formData.get('season_id'))
   const managerId = Number(formData.get('manager_id'))
@@ -241,13 +250,13 @@ export async function updateMatch(formData: FormData) {
   }
 
   try {
-    await requirePermission('can_manage_matches')
+    const { supabase } = await requirePermission('can_manage_matches')
     const teamId = await getActiveTeamId()
-    const supabase = createAdminClient()
-
-    const { data, error } = await supabase
-      .from('matches')
-      .update({
+    const { data, error } = await supabase.rpc('save_match_with_players', {
+      p_team_id: teamId,
+      p_match_id: matchId,
+      p_player_ids: playerIds,
+      p_match: {
         season_id: seasonId,
         manager_id: managerId,
         opponent_id: opponentId,
@@ -256,11 +265,8 @@ export async function updateMatch(formData: FormData) {
         ...(formData.has('location') ? { location: cleanLocation } : {}),
         notes: cleanNotes,
         played_at: cleanPlayedAt,
-      })
-      .eq('id', matchId)
-      .eq('team_id', teamId)
-      .select('id')
-      .maybeSingle()
+      },
+    })
 
     if (error) {
       if (error.code === '23503') {
@@ -270,6 +276,7 @@ export async function updateMatch(formData: FormData) {
         }
       }
 
+      if (error.message?.includes('INVALID_PARTICIPANTS')) return { error: 'Todos los participantes deben pertenecer a este equipo.' }
       return { error: 'No se pudo actualizar el partido.' }
     }
 
@@ -280,6 +287,8 @@ export async function updateMatch(formData: FormData) {
     revalidatePath('/')
     revalidatePath('/matches')
     revalidatePath('/opponents')
+    revalidatePath('/seasons')
+    revalidatePath('/managers')
 
     return { success: true }
   } catch {

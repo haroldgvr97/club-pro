@@ -4,6 +4,7 @@ import { useActionState, useId, useState } from 'react'
 import { createMatch } from '@/app/actions/matches'
 import { getOpponentHistory, getSimilarOpponentNames, normalizeOpponentName, type OpponentMatch } from '@/lib/matches/opponents'
 import { getMatchResult } from '@/lib/matches/result'
+import { MatchParticipants } from '@/components/match-participants'
 
 type Option = { id: number; name: string }
 type Props = {
@@ -19,6 +20,7 @@ export function CreateMatchForm({ seasons, managers, opponents, matches }: Props
   const listId = useId()
   const [opponentName, setOpponentName] = useState('')
   const [managerId, setManagerId] = useState('')
+  const [players, setPlayers] = useState<number[]>([])
   const [seasonId, setSeasonId] = useState(String(seasons[0]?.id ?? ''))
   const [ourGoals, setOurGoals] = useState('')
   const [opponentGoals, setOpponentGoals] = useState('')
@@ -28,6 +30,7 @@ export function CreateMatchForm({ seasons, managers, opponents, matches }: Props
       if (result.success) {
         setOpponentName('')
         setManagerId('')
+        setPlayers([])
         setSeasonId(String(seasons[0]?.id ?? ''))
         setOurGoals('')
         setOpponentGoals('')
@@ -78,6 +81,8 @@ export function CreateMatchForm({ seasons, managers, opponents, matches }: Props
             </select>
           </label>
         </div>
+
+        <MatchParticipants players={managers} managerId={Number(managerId)} selected={players} onChange={setPlayers} />
 
         {opponentName.trim() && (
           <section aria-label="Historial del equipo rival" className="rounded-lg border border-zinc-700 bg-zinc-950 p-4">

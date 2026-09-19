@@ -8,7 +8,7 @@ import { getDashboardData } from '@/lib/data/get-dashboard-data'
 import { getAuthenticatedProfile } from '@/lib/auth/require-permission'
 
 export default async function SeasonsPage() {
-  const [{ seasons, matches, managers }, { profile }] = await Promise.all([
+  const [{ seasons, matches, managers, opponents }, { profile }] = await Promise.all([
     getDashboardData(),
     getAuthenticatedProfile(),
   ])
@@ -66,6 +66,9 @@ export default async function SeasonsPage() {
                         startDate={season.start_date} endDate={season.end_date} /> : null}
 
                       <SeasonMatchHistory seasonName={season.name} matches={seasonMatches}
+                        seasons={seasons.map(({ id, name }) => ({ id, name }))}
+                        opponents={opponents.map(({ id, name }) => ({ id, name }))}
+                        canManageMatches={profile.role === 'admin' || profile.can_manage_matches}
                         managers={managers.map((manager) => ({ id: manager.id, name: manager.name }))} />
                     </div>
                   )

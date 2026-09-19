@@ -35,6 +35,7 @@ export async function getDashboardData() {
       .from('matches')
       .select(`
         *,
+        match_players (player_id),
         seasons (
           id,
           name

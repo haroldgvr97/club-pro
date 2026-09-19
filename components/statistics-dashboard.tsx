@@ -16,6 +16,8 @@ type Manager = {
 }
 
 type Match = {
+  participants_recorded: boolean
+  match_players: { player_id: number }[]
   id: number
   manager_id: number | null
   our_goals: number
@@ -218,6 +220,7 @@ function PlayerDetails({ manager, matches, onBack, canEdit, canDelete }: { manag
         {canDelete ? <DeleteManagerButton managerId={manager.id} label="Eliminar Manager/Jugador" /> : null}
       </div>
       <EditManagerForm managerId={manager.id} goals={manager.goals} assists={manager.assists} stats={stats} canEdit={canEdit} />
+      {matches.some(match => !match.participants_recorded) && <p className="mt-3 text-sm text-amber-300">Hay partidos con participantes pendientes en Temporadas. Los partidos jugados y goles por partido solo incluyen participaciones registradas.</p>}
     </div>
   )
 }

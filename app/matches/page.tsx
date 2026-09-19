@@ -129,6 +129,7 @@ export default async function MatchesPage() {
                         matchId={match.id}
                         seasonId={match.season_id}
                         managerId={match.manager_id}
+                        playerIds={match.match_players.map(player => player.player_id)}
                         opponentId={match.opponent_id}
                         ourGoals={match.our_goals}
                         opponentGoals={match.opponent_goals}

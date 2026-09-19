@@ -74,6 +74,7 @@ export type Database = {
       }
       matches: {
         Row: {
+          participants_recorded: boolean
           created_at: string
           id: number
           location: string | null
@@ -87,6 +88,7 @@ export type Database = {
           team_id: number
         }
         Insert: {
+          participants_recorded?: boolean
           created_at?: string
           id?: number
           location?: string | null
@@ -100,6 +102,7 @@ export type Database = {
           team_id: number
         }
         Update: {
+          participants_recorded?: boolean
           created_at?: string
           id?: number
           location?: string | null
@@ -226,6 +229,15 @@ export type Database = {
         }
         Relationships: []
       }
+      match_players: {
+        Row: { match_id: number; player_id: number }
+        Insert: { match_id: number; player_id: number }
+        Update: { match_id?: number; player_id?: number }
+        Relationships: [
+          { foreignKeyName: 'match_players_match_id_fkey'; columns: ['match_id']; isOneToOne: false; referencedRelation: 'matches'; referencedColumns: ['id'] },
+          { foreignKeyName: 'match_players_player_id_fkey'; columns: ['player_id']; isOneToOne: false; referencedRelation: 'managers'; referencedColumns: ['id'] },
+        ]
+      }
       team_members: {
         Row: { profile_id: string; team_id: number; can_manage_permissions: boolean; can_manage_matches: boolean; can_edit_other_player_stats: boolean; can_view_other_manager_stats: boolean; can_send_invites: boolean; can_manage_seasons: boolean }
         Insert: { profile_id: string; team_id: number }
@@ -244,6 +256,7 @@ export type Database = {
     }
     Functions: {
       activate_season: { Args: { p_season_id: number }; Returns: undefined }
+      save_match_with_players: { Args: { p_team_id: number; p_match: Json; p_player_ids: number[]; p_match_id?: number }; Returns: number }
       assign_invited_user_to_team: { Args: { p_team_id: number; p_user_id: string }; Returns: undefined }
       set_team_permissions: { Args: { p_team_id: number; p_user_id: string; p_permissions: Json }; Returns: undefined }
       update_player_stats: { Args: { p_team_id: number; p_manager_id: number; p_goals: number; p_assists: number }; Returns: undefined }

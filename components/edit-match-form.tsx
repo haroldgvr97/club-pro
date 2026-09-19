@@ -1,6 +1,7 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
+import { MatchParticipants } from '@/components/match-participants'
 
 import { updateMatch } from '@/app/actions/matches'
 
@@ -12,7 +13,8 @@ type Option = {
 type Props = {
   matchId: number
   seasonId: number
-  managerId: number
+  managerId: number | null
+  playerIds: number[]
   opponentId: number
   ourGoals: number
   opponentGoals: number
@@ -34,6 +36,7 @@ export function EditMatchForm({
   matchId,
   seasonId,
   managerId,
+  playerIds,
   opponentId,
   ourGoals,
   opponentGoals,
@@ -43,14 +46,18 @@ export function EditMatchForm({
   managers,
   opponents,
 }: Props) {
+  const [selectedManager, setSelectedManager] = useState(String(managerId ?? ''))
+  const [players, setPlayers] = useState(playerIds)
   const [state, formAction, pending] = useActionState(
     async (_previousState: State, formData: FormData) => {
+      if (formData.get('played_at') === localPlayedAt) formData.set('played_at', playedAt)
       return updateMatch(formData)
     },
     initialState
   )
 
-  const localPlayedAt = new Date(playedAt).toISOString().slice(0, 16)
+  const originalDate = new Date(playedAt)
+  const localPlayedAt = new Date(originalDate.getTime() - originalDate.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
 
   return (
     <form action={formAction} className="grid gap-3 md:grid-cols-4">
@@ -71,10 +78,12 @@ export function EditMatchForm({
 
       <select
         name="manager_id"
-        defaultValue={managerId}
+        value={selectedManager}
+        onChange={event => setSelectedManager(event.target.value)}
         required
         className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2"
       >
+        <option value="">Selecciona un manager</option>
         {managers.map((manager) => (
           <option key={manager.id} value={manager.id}>
             {manager.name}
@@ -134,6 +143,7 @@ export function EditMatchForm({
         placeholder="Notas"
         className="min-h-20 rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 md:col-span-4"
       />
+      <div className="md:col-span-4"><MatchParticipants players={managers} managerId={Number(selectedManager)} selected={players} onChange={setPlayers} /></div>
 
       {state?.error ? (
         <p className="text-sm text-red-400 md:col-span-4">{state.error}</p>
