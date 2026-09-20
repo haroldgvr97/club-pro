@@ -25,7 +25,7 @@ export default async function SeasonsPage() {
             description="Cada temporada, un nuevo capítulo. Todos tus partidos en un lugar." />
 
           {canManageSeasons ? <section className="mb-8 rounded-xl border border-zinc-800 bg-zinc-900 p-5">
-            <div className="cp-form-guide"><span aria-hidden="true">+</span><h2>Agregar temporada</h2></div>
+            <div className="cp-form-guide"><h2>Agregar temporada</h2></div>
             <CreateSeasonForm />
           </section>
           : null}

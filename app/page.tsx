@@ -55,11 +55,11 @@ export default async function Home() {
             {activeSeason && <span className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-[10px] text-zinc-300"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />{activeSeason.name}</span>}
           </div>
           <section className="cp-metrics" aria-label="Resumen del club">
-            {metrics.map((metric, index) => <div className="cp-metric" key={metric.label}>
-              <p>{metric.label}</p><span className="cp-metric-index" aria-hidden="true">0{index + 1}</span>
+            {metrics.map((metric) => <div className="cp-metric" key={metric.label}>
+              <p>{metric.label}</p>
               <p className={`cp-metric-value ${metric.color}`}>{metric.value}</p>
               <p className="cp-metric-caption">{metric.caption}</p>
-              {index === 1 && <span className="cp-metric-line" aria-hidden="true" />}
+              {metric.label === 'Victorias' && <span className="cp-metric-line" aria-hidden="true" />}
             </div>)}
           </section>
           <dl className="cp-detail-metrics">
@@ -83,7 +83,7 @@ export default async function Home() {
 
           <div className="mt-8 grid gap-5 xl:grid-cols-2">
             <section className="cp-panel">
-              <div className="cp-section-heading"><h2>Rendimiento por manager</h2><span>01 / EQUIPO</span></div>
+              <div className="cp-section-heading"><h2>Rendimiento por manager</h2></div>
               {managerStats.length === 0 ? <div className="cp-empty"><span className="cp-empty-mark" aria-hidden="true">↗</span><p>Las estadísticas comienzan con el primer partido.</p><Link href="/managers" className="text-xs text-emerald-400 hover:underline">Ver estadísticas →</Link></div>
                 : <div className="divide-y divide-zinc-800">{managerStats.map(manager => <div key={manager.managerId} className="px-5 py-5">
                   <div className="flex items-center justify-between gap-4">
@@ -98,7 +98,7 @@ export default async function Home() {
             </section>
 
             <section className="cp-panel">
-              <div className="cp-section-heading"><h2>Últimos partidos</h2><span>02 / HISTORIAL</span></div>
+              <div className="cp-section-heading"><h2>Últimos partidos</h2></div>
               {recentMatches.length === 0 ? <div className="cp-empty"><span className="cp-empty-mark" aria-hidden="true">—</span><p>La cancha está lista. Aún no hay partidos registrados.</p><Link href="/matches" className="text-xs text-emerald-400 hover:underline">Ir a partidos →</Link></div>
                 : <div className="divide-y divide-zinc-800">{recentMatches.map(match => {
                   const result = getMatchResult(match.our_goals, match.opponent_goals)

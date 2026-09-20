@@ -52,7 +52,7 @@ export default async function MatchesPage() {
             description="Cada partido cuenta. Registra tu equipo y guarda el resultado final." />
 
           {canManageMatches ? <section className="mb-8 rounded-xl border border-zinc-800 bg-zinc-900 p-5">
-            <div className="cp-form-guide"><span aria-hidden="true">01</span><h2>Registrar partido</h2></div>
+            <div className="cp-form-guide"><h2>Registrar partido</h2></div>
 
             <CreateMatchForm
               seasons={seasonOptions}

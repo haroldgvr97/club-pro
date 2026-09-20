@@ -62,7 +62,7 @@ export function StatisticsDashboard({ managers, matches, viewerProfileId, canVie
           aria-pressed={section === 'managers'}
           className={`${styles.tab} ${section === 'managers' ? styles.activeTab : ''}`}
         >
-          <span className={styles.tabNumber}>01</span> Managers
+          Managers
         </button>
         <button
           type="button"
@@ -73,7 +73,7 @@ export function StatisticsDashboard({ managers, matches, viewerProfileId, canVie
           aria-pressed={section === 'players'}
           className={`${styles.tab} ${section === 'players' ? styles.activeTab : ''}`}
         >
-          <span className={styles.tabNumber}>02</span> Jugadores
+          Jugadores
         </button>
         </div>
         <span className={styles.sectionCount}>{visibleManagers.length} en la plantilla</span>

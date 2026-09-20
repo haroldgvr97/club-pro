@@ -39,7 +39,6 @@
 
 .tab:hover { color: #fff; }
 .activeTab, .activeTab:hover { background: #f4f4f5; color: #09090b; }
-.tabNumber { font-size: 10px; font-weight: 500; opacity: .5; }
 .sectionCount { color: #71717a; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
 .sectionTitle { font-size: clamp(23px, 2vw, 30px); font-weight: 650; letter-spacing: -.045em; line-height: 1.2; }
 .sectionDescription { margin-top: 8px; font-size: 13px; line-height: 1.7; color: #a1a1aa; }
