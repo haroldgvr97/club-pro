@@ -18,7 +18,10 @@ export async function proxy(request: NextRequest) {
   )
   const { data: { user } } = await supabase.auth.getUser()
   const { data: aal } = user ? await supabase.auth.mfa.getAuthenticatorAssuranceLevel() : { data: null }
-  const destination = authRedirect(request.nextUrl.pathname, Boolean(user), aal?.currentLevel ?? undefined, aal?.nextLevel ?? undefined)
+  const { data: profile } = user
+    ? await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle()
+    : { data: null }
+  const destination = authRedirect(request.nextUrl.pathname, Boolean(user), aal?.currentLevel ?? undefined, aal?.nextLevel ?? undefined, profile?.role ?? undefined)
   if (!destination) return response
   const url = request.nextUrl.clone()
   url.pathname = destination

@@ -3,11 +3,12 @@ import { authRedirect } from '@/lib/auth/routing'
 import { getInviteRedirect } from '@/lib/auth/invite-url'
 
 describe('protected navigation', () => {
-  it('requires login and verified MFA on every protected section', () => {
+  it('requires login everywhere and only admins require MFA', () => {
     for (const path of ['/', '/matches', '/managers', '/seasons', '/teams', '/admin/users', '/login-other']) {
       expect(authRedirect(path, false)).toBe('/login')
-      expect(authRedirect(path, true, 'aal1', 'aal1')).toBe('/mfa/setup')
+      expect(authRedirect(path, true, 'aal1', 'aal1', 'admin')).toBe('/mfa/setup')
       expect(authRedirect(path, true, 'aal1', 'aal2')).toBe('/mfa/verify')
+      expect(authRedirect(path, true, 'aal1', 'aal1', 'user')).toBeNull()
       expect(authRedirect(path, true)).toBe('/login')
     }
   })

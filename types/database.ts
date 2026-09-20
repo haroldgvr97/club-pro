@@ -169,6 +169,7 @@ export type Database = {
           can_view_other_manager_stats: boolean
           created_at: string
           display_name: string | null
+          avatar_url: string | null
           email: string
           id: string
           role: string
@@ -181,6 +182,7 @@ export type Database = {
           can_view_other_manager_stats?: boolean
           created_at?: string
           display_name?: string | null
+          avatar_url?: string | null
           email: string
           id: string
           role?: string
@@ -193,6 +195,7 @@ export type Database = {
           can_view_other_manager_stats?: boolean
           created_at?: string
           display_name?: string | null
+          avatar_url?: string | null
           email?: string
           id?: string
           role?: string
@@ -267,6 +270,14 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       set_profile_display_name: {
         Args: { p_display_name: string }
+        Returns: undefined
+      }
+      update_profile_settings: {
+        Args: { p_display_name: string; p_avatar_url: string | null }
+        Returns: undefined
+      }
+      save_profile_avatar_path: {
+        Args: { p_avatar_url: string }
         Returns: undefined
       }
     }

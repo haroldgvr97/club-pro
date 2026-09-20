@@ -14,6 +14,11 @@ export default function MFAVerifyPage() {
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
 
+  function getReturnTo() {
+    const value = new URLSearchParams(window.location.search).get('returnTo')
+    return value && value.startsWith('/') ? value : '/'
+  }
+
   const verifyMFA = useCallback(async (verificationCode: string) => {
     if (inFlight.current || !/^\d{6}$/.test(verificationCode)) return
     inFlight.current = true
@@ -33,7 +38,7 @@ export default function MFAVerifyPage() {
       const factor = data.totp.find((factor) => factor.status === 'verified')
 
       if (!factor) {
-        router.push('/mfa/setup')
+        router.push(`/mfa/setup?returnTo=${encodeURIComponent(getReturnTo())}`)
         return
       }
 
@@ -60,7 +65,7 @@ export default function MFAVerifyPage() {
         return
       }
 
-      router.replace('/')
+      router.replace(getReturnTo())
       router.refresh()
     } catch {
       setMessage('No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.')

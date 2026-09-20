@@ -16,6 +16,11 @@ export default function MFASetupPage() {
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
 
+  function getReturnTo() {
+    const value = new URLSearchParams(window.location.search).get('returnTo')
+    return value && value.startsWith('/') ? value : '/'
+  }
+
   async function enrollMFA() {
     if (inFlight.current) return
     inFlight.current = true
@@ -24,7 +29,7 @@ export default function MFASetupPage() {
     try {
       const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors()
       if (factorsError) throw factorsError
-      if (factors.totp.some(factor => factor.status === 'verified')) { router.replace('/mfa/verify'); return }
+      if (factors.totp.some(factor => factor.status === 'verified')) { router.replace(`/mfa/verify?returnTo=${encodeURIComponent(getReturnTo())}`); return }
       for (const factor of factors.all.filter(factor => factor.factor_type === 'totp' && factor.status === 'unverified')) {
         const { error } = await supabase.auth.mfa.unenroll({ factorId: factor.id })
         if (error) throw error
@@ -81,7 +86,7 @@ export default function MFASetupPage() {
         return
       }
 
-      router.replace('/')
+      router.replace(getReturnTo())
       router.refresh()
     } catch {
       setMessage('No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.')

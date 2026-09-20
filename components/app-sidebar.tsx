@@ -11,6 +11,7 @@ const links: NavigationItem[] = [
   { href: '/opponents', label: 'Rivales', icon: 'opponents' },
   { href: '/seasons', label: 'Temporadas', icon: 'seasons' },
   { href: '/admin/users', label: 'Usuarios', icon: 'users' },
+  { href: '/profile', label: 'Perfil', icon: 'profile' },
 ]
 
 // La sección se conserva para poder volver a activarla más adelante.

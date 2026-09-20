@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import type { ReactNode } from 'react'
 import styles from './app-navigation.module.css'
 
-type NavigationIcon = 'dashboard' | 'matches' | 'statistics' | 'opponents' | 'seasons' | 'users' | 'teams'
+type NavigationIcon = 'dashboard' | 'matches' | 'statistics' | 'opponents' | 'seasons' | 'users' | 'teams' | 'profile'
 
 export type NavigationItem = {
   href: string
@@ -22,6 +22,7 @@ function NavIcon({ name }: { name: NavigationIcon }) {
     seasons: <><path d="M8 3h8v6a4 4 0 0 1-8 0V3Zm0 2H4v2a4 4 0 0 0 4 4m8-6h4v2a4 4 0 0 1-4 4m-4 2v5m-4 3h8m-7-3h6" /></>,
     users: <><circle cx="9" cy="7" r="3" /><path d="M3 21v-3a6 6 0 0 1 12 0v3m2-17a3 3 0 0 1 0 6m2 4a5 5 0 0 1 2 4v3" /></>,
     teams: <><path d="m12 2 9 4v6c0 5-9 10-9 10S3 17 3 12V6l9-4Z" /><path d="m8 12 3 3 5-6" /></>,
+    profile: <><circle cx="12" cy="8" r="3.5" /><path d="M4 21a8 8 0 0 1 16 0" /></>,
   }
 
   return <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>

@@ -53,7 +53,7 @@ export default function SetPasswordPage() {
       return
     }
 
-    router.push('/mfa/setup')
+    router.push('/')
   }
 
   return (
